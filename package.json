@@ -1,0 +1,31 @@
+{
+  "name": "vuexblaze",
+  "description": "Yet another Firebase bindings for Vuex",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Yoshinori Ishii <yoshinori.ishii@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "lodash": "^4.17.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishiijp/vuexblaze.git"
+  },
+  "keywords": [
+    "vuex",
+    "firestore",
+    "firebase",
+    "google",
+    "database",
+    "bind"
+  ],
+  "peerDependencies": {
+    "firebase": ">= 5.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/ishiijp/vuexblaze/issues"
+  },
+  "homepage": "https://github.com/ishiijp/vuexblaze#readme"
+}
