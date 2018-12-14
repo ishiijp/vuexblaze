@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "My epic Nuxt.js project",
   "author": "Yoshinori Ishii",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "dotenv nuxt",
     "build": "nuxt build",
