@@ -1,0 +1,26 @@
+{
+  "name": "nuxt-app",
+  "version": "1.0.0",
+  "description": "My epic Nuxt.js project",
+  "author": "Yoshinori Ishii",
+  "private": true,
+  "scripts": {
+    "dev": "dotenv nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "cross-env": "^5.2.0",
+    "faker": "^4.1.0",
+    "firebase": "^5.7.0",
+    "nuxt": "^2.0.0",
+    "nuxt-fire": "^1.2.1",
+    "random-name": "^0.1.2",
+    "vuexblaze": "^0.0.3"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^1.4.0",
+    "nodemon": "^1.11.0"
+  }
+}
