@@ -1,74 +1,125 @@
 import { once, last } from 'lodash'
-import VuexBlazeDocSnapshot from './VuexBlazeDocSnapshot'
+import VuexBlazeDocObserver from './VuexBlazeDocObserver'
 
 export default class VuexBlazeInnerCollectionObserver {
 
-  constructor(parent, collectionRef) {
+  constructor(parent, collectionRef, paths, refDepth) {
     this.parent = parent
     this.collectionRef = collectionRef
-    this.collection = []
+    this.paths = paths
+    this.refDepth = refDepth
+    this.children = []
+    this.changeCallbacks = []
+    this.isFirst = true
+    this.unsubscribe = null
   }
 
-  async observe() {
+  observe() {
     return new Promise((resolve, reject) => {
       const resolveOnce = once(resolve)
       const rejectOnce = once(reject)
-      let isFirst = true
-      let changes = []
+      let docChanges = []
 
-      const unsubscribe = this.collectionRef.onSnapshot({includeMetadataChanges: true}, 
+      this.unsubscribe = this.collectionRef.onSnapshot({includeMetadataChanges: true}, 
         async querySnapshot => {
-          changes = changes.concat(querySnapshot.docChanges())
+          docChanges = docChanges.concat(querySnapshot.docChanges())
           if (querySnapshot.metadata.fromCache) return
 
-          if (isFirst) {
-            isFirst = false
-            if (!changes.length) {
-              unsubscribe()
-              rejectOnce()
-            } else {
-              await this._processQuerySnapshot(querySnapshot, changes)
-              changes = []
-              this.parent.notifyChange(this)
-              resolveOnce()
-            }
+          if (this.isFirst) {
+            this.isFirst = false
+            const [changes, observers] = this._processQuerySnapshot(querySnapshot, docChanges)
+            this.children = observers
+
+            const collection = this.constructor.createCollectionFromChanges(changes)
+
+            await Promise.all(this.children.map(child => {
+              child.onChange(childChange => {
+                if (this.isFirst) {
+                  set(collection, childChange.paths.slice(-2), childChange.data)
+                } else {
+                  this.notifyChange(childChange)
+                }
+              })
+              return child.observe()
+            }))
+            this.notifyChange({ paths: this.paths, data: collection })
+            resolveOnce()
           } else {
-            const { added, removed } = this._inspectChanges(changes)
+            const { added, removed } = this.constructor.inspectChanges(docChanges)
             if (added && removed) {
               this.parent.notifyDestructiveChange()
-              unsubscribe()
+              this.unsubscribe()
             } else {
-              await this._processQuerySnapshot(querySnapshot, changes)
-              this.parent.notifyChange(this)
-              changes = []
+              const [changes, observers] =  this._processQuerySnapshot(querySnapshot, docChanges)
+              observers.forEach(observer => {
+                observer.onChange(childChange => {
+                  this.notifyChange(childChange)
+                })
+                return observer.observe()
+              })
+              changes.forEach(change => this.notifyChange(change))
             }
           }
         }, rejectOnce)
-      this.parent.unsubscribes.push(unsubscribe)
     })
   }
 
-  async _processQuerySnapshot(querySnapshot, changes) {
-    changes.forEach(async change => {
-      switch(change.type) {
+  _processQuerySnapshot(querySnapshot, docChanges) {
+    const changes = []
+    const observers = []
+    docChanges.forEach(docChange => {
+      switch(docChange.type) {
         case 'added': 
-          this.collection.splice(change.newIndex, 0, await (new VuexBlazeDocSnapshot(this.parent.$firestore, change.doc, 1)).fetch())
+          let [change, childObservers] = VuexBlazeDocObserver.processDocSnapshot(docChange.doc, [...this.paths, docChange.newIndex], this.refDepth)
+          changes.push({ ...change, type: 'add' })
+          Array.prototype.push.apply(observers, childObservers)
           return
         case 'removed': 
-          this.collection.splice(change.oldIndex, 1)
+          changes.push({ paths: [...this.paths, docChange.oldIndex], type: 'remove' })
           return
         case 'modified': 
-          this.collection.splice(change.oldIndex, 1)
-          this.collection.splice(change.newIndex, 0, await (new VuexBlazeDocSnapshot(this.parent.$firestore, change.doc, 1)).fetch())
+          [change, childObservers] = VuexBlazeDocObserver.processDocSnapshot(docChange.doc, [...this.paths, docChange.newIndex], this.refDepth)
+          changes.push({ ...change, type: 'modify' })
+          Array.prototype.push.apply(observers, childObservers)
           return
       }
     })
     this.length = querySnapshot.size
     this.firstDoc = querySnapshot.docs[0]
     this.lastDoc = last(querySnapshot.docs)
+    return [changes, observers]
   }
 
-  _inspectChanges(changes) {
+  onChange(callback) {
+    this.changeCallbacks.push(callback)
+  }
+
+  stop() {
+    this.unsubscribe()
+    this.children.forEach(child => {
+      child.unsubscribe()
+    })
+    this.children = []
+  }
+
+  static createCollectionFromChanges(changes) {
+    return changes.reduce((collection, change) => {
+      switch(change.type) {
+        case 'add':
+          collection.splice(last(change.paths), 0, change.data)
+          break
+        case 'remove':
+          collection.splice(last(change.paths), 1)
+          break
+        case 'modify':
+          collection.splice(last(change.paths), 1, change.data)
+          break
+      }
+      return collection
+    })
+  }
+
+  static inspectChanges(changes) {
     return changes.reduce((result, change) => {
       result[change.type] = true
       return result
