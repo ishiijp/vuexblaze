@@ -1,34 +1,94 @@
-import { once, last } from 'lodash'
+import { once } from 'lodash'
 import { isObject, isDocumentReference, isReference } from '../utils'
+import VuexBlazeDocChange from './VuexBlazeDocChange';
 
 export default class VuexBlazeDocObserver {
 
-  constructor(docRef, paths, refDepth) {
-    this.docRef = docRef
+  constructor(paths, refDepth) {
     this.paths = paths
     this.refDepth = refDepth
-    this.currentChange = null
+    this.currentDoc = null
     this.refObservers = {}
     this.changeCallbacks = []
-    this.isFirst = true
-    this.unsubscribe = null
+    this.observing = false
   }
 
-  static processDocSnapshot(snapshot, paths, refDepth, refObservers) {
+  static createFromRef(docRef, paths, refDepth) {
+    const self = new VuexBlazeDocObserver(paths, refDepth)
+    self.docRef = docRef
+    self.unsubscribe = null
+    return self
+  }
+
+  static createFromSnapshot(snapshot, paths, refDepth, previousObserver) {
+    const self = new VuexBlazeDocObserver(paths, refDepth)
+    self.snapshot = snapshot
+    if (previousObserver) {
+      self.refObservers = previousObserver.refObservers
+    }
+    return self
+  }
+
+  get childObservers() {
+    return Object.values(this.refObservers)
+  }
+
+  async observe() {
+    this.observing = true
+    if (this.docRef) {
+      return new Promise((resolve, reject) => {
+        const resolveOnce = once(resolve)
+        const rejectOnce = once(reject)
+        this.unsubscribe = this.docRef.onSnapshot(async snapshot => {
+          try {
+            this.currentDoc = this._processDocSnapshot(snapshot)
+            await this.notifyChange()
+            resolveOnce()
+          } catch(e) {
+            rejectOnce(e)
+          }
+        }, rejectOnce)
+      })
+    } else if (this.snapshot) {
+      this.currentDoc = this._processDocSnapshot(snapshot)
+      await this.notifyChange()
+    } else {
+      throw new Error('Unexpected Initialization')
+    }
+  }
+
+  onChange(callback) {
+    this.changeCallbacks.push(callback)
+  }
+
+  stop() {
+    if (this.unsubscribe) {
+      this.unsubscribe()
+    }
+    Object.values(this.refObservers).forEach(child => {
+      child.stop()
+    })
+    this.currentDoc = null
+    this.refObservers = {}
+    this.observing = false
+  }
+
+  _processDocSnapshot(snapshot) {
     const refs = []
 
     const processData = (data, currentPaths) => {
       Object.entries(data).forEach(([key, value]) => {
         if (isReference(value)) {
-          if (currentPaths.length < refDepth) {
+          if (currentPaths.length < this.refDepth) {
             const refKey = key + '-' + value.id
             refs.push(refKey)
-            if (refObservers[refKey]) {
-              data[key] = refObservers[refKey].currentChange.data
+            if (this.refObservers[refKey]) {
+              data[key] = this.refObservers[refKey].currentDoc
             } else {
-              refObservers[refKey] = isDocumentReference(value)
-              ? new VuexBlazeDocObserver(value, [...currentPaths, key], refDepth)
-              : new VuexBlazeCollectionObserver(value, [...currentPaths, key], refDepth)
+              data[key] = this.currentDoc ? this.currentDoc[key] || undefined : undefined
+              this.refObservers[refKey] = isDocumentReference(value)
+                ? VuexBlazeDocObserver.createFromRef(value, [...currentPaths, key], this.refDepth)
+                : new VuexBlazeCollectionObserver(value, [...currentPaths, key], this.refDepth)
             }
           } else {
             data[key] = value.path
@@ -41,7 +101,7 @@ export default class VuexBlazeDocObserver {
       })
       return data
     }
-    const data = processData(snapshot.data(), paths)
+    const data = processData(snapshot.data(), this.paths)
   
     const doc = Object.defineProperty(data, 'id', 
     {
@@ -51,67 +111,17 @@ export default class VuexBlazeDocObserver {
       value: snapshot.id,
     })
 
-    Object.keys(refObservers)
+    Object.keys(this.refObservers)
       .filter(key => !refs.includes(key))
       .forEach(key => {
-        refObservers[key].unsubscribe()
-        delete refObservers[key]
+        this.refObservers[key].unsubscribe()
+        delete this.refObservers[key]
       })
 
-    return { paths, data: doc }
+    return doc
   }
 
-  observe() {
-    return new Promise((resolve, reject) => {
-      const resolveOnce = once(resolve)
-      const rejectOnce = once(reject)
-
-      this.unsubscribe = this.docRef.onSnapshot(async snapshot => {
-        try {
-          this.currentChange = VuexBlazeDocObserver.processDocSnapshot(snapshot, this.paths.slice(0), this.refDepth, this.refObservers)
-          if (this.isFirst) {
-            await Promise.all(Object.values(this.refObservers).map(child => {
-              child.onChange(childChange => {
-                if (this.isFirst) {
-                  this.currentChange.data[last(childChange.paths)] = childChange.data
-                } else {
-                  this._notifyChange(childChange)
-                }
-              })
-              return child.observe()
-            }))
-          } else {
-            Object.values(this.refObservers).forEach(child => {
-              child.onChange(childChange => {
-                this._notifyChange(childChange)
-              })
-              child.observe()
-            })
-          }
-          this.isFirst = false
-          this._notifyChange(this.currentChange)
-          resolveOnce()
-
-        } catch(e) {
-          rejectOnce(e)
-        }
-      }, rejectOnce)
-    })
-  }
-
-  onChange(callback) {
-    this.changeCallbacks.push(callback)
-  }
-
-  stop() {
-    this.unsubscribe()
-    this.children.forEach(child => {
-      child.unsubscribe()
-    })
-    this.children = []
-  }
-
-  _notifyChange(change) {
-    this.changeCallbacks.forEach(callback => callback(change))
+  async notifyChange() {
+    await Promise.all(this.changeCallbacks.map(callback => callback(new VuexBlazeDocChange(this))))
   }
 }
