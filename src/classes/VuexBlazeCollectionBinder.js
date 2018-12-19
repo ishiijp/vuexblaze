@@ -4,41 +4,46 @@ import {
   VUEXBLAZE_COLLECTION_REMOVE,
   VUEXBLAZE_COLLECTION_SPLICE
 } from '../types'
+import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver';
 
 export default class VuexBlazeCollectionBinder {
 
-  constructor(observer, context, stateName, filterName, queries) {
-    this.observer = observer
+  constructor(context, stateName, collectionRef, filterName, queries) {
     this.context = context
     this.stateName = stateName
+    this.collectionRef = collectionRef
     this.filterName = filterName
     this.destructiveChangeCallbacks = []
-    this.innerCollectionInfos = []
-    this.queries = queries || []
+    this.queries = queries
+    this.observer = new VuexBlazeCollectionObserver(
+      collectionRef, this._getQueries(), [], 2
+    )
+  }
+
+  get collection() {
+    return this.context.state[this.stateName]
   }
 
   async bind() {
-    this.observer.onChange((innerCollectionIndex, collection) => {
-      const info = this._getInnerCollectionInfo(innerCollectionIndex)
-      const startIndex = this._calcStartIndex(innerCollectionIndex)
-      this._replaceCollection(startIndex, info.length, collection)
-      info.length = collection.length
-    })
+    this.observer.onChange(async change => 
+      await change.applyTo(this.context, this.stateName)  
+    )
     this.observer.onDestructiveChange(() => {
       this.destructiveChangeCallbacks.forEach(callback => callback())
     })
-    await this.observer.observe(this._getQueries())
+    await this.observer.observe()
     return this
   }
 
   async increment() {
-    await this.observer.next()
+    await this.observer.increment()
   }
 
   async reload() {
     this.observer.stop()
-    this.observer = this.observer.clone()
-    this.innerCollectionInfos = []
+    this.observer = new VuexBlazeCollectionObserver(
+      collectionRef, this._getQueries(), [], 2
+    )
     this._replaceCollection(0, this.collection.length)
     await this.bind()
   }
@@ -54,10 +59,6 @@ export default class VuexBlazeCollectionBinder {
     this.destructiveChangeCallbacks.push(callback)
   }
 
-  get collection() {
-    return this.context.state[this.stateName]
-  }
-
   _getQueries() {
     if (this.filterName && this.queries.length) {
       throw new Error('Duplicate query settings')
@@ -69,23 +70,6 @@ export default class VuexBlazeCollectionBinder {
     } else {
       return this.queries.slice(0)
     }
-  }
-
-  _getInnerCollectionInfo(index) {
-    if (this.innerCollectionInfos.length - 1 < index) {
-      const info = { length: 0 }
-      this.innerCollectionInfos.push(info)
-      return info
-    } else {
-      return this.innerCollectionInfos[index]
-    }
-  }
-
-  _calcStartIndex(innerCollectionIndex) {
-    return this.innerCollectionInfos.slice(0, innerCollectionIndex)
-      .reduce((sum, info) => {
-        return sum + info.length
-      }, 0)
   }
 
   _replaceCollection(index, howMany, elements = []) {

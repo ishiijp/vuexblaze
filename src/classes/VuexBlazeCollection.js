@@ -7,11 +7,11 @@ export default class VuexBlazeCollection {
   constructor(collectionName) {
     this.collectionName = collectionName
     this.filterName = null
-    this.specifiedQueries = []
+    this.queries = []
 
     this.FIRESTORE_METHODS.forEach(methodName => {
       this[methodName] = (...args) => {
-        this.specifiedQueries.push([methodName, args])
+        this.queries.push([methodName, args])
         return this
       }
     })
@@ -24,8 +24,8 @@ export default class VuexBlazeCollection {
       async [actionName('bind', stateName)](context) {
         if (binder) throw new Error('Already binded')
         const $firestore = this.$firestore || this.$fireStore
-        const observer = new VuexBlazeCollectionObserver($firestore, self.collectionName)
-        binder = new VuexBlazeCollectionBinder(observer, context, stateName, self.filterName, self.specifiedQueries)
+        const collectionRef = $firestore.collection(self.collectionName)
+        binder = new VuexBlazeCollectionBinder(context, stateName, collectionRef, self.filterName, self.queries)
         return await binder.bind()
       },
       async [actionName('increment', stateName)]() {

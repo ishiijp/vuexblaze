@@ -8,8 +8,9 @@ export default class VuexBlazeCollectionObserver {
     this.queries = queries
     this.paths = paths
     this.refDepth = refDepth
-    this.children = []
+    this.innerObservers = []
     this.changeCallbacks = []
+    this.destructiveChangeCallbacks = []
     this.unsubscribes = []
     this.isFirst = true
   }
@@ -19,9 +20,8 @@ export default class VuexBlazeCollectionObserver {
     this.queries.forEach(([query, args]) => {
       ref = ref[query](...args)
     })
-    const inner = new VuexBlazeInnerCollectionObserver(ref, paths, refDepth)
-    inner.onChange(change => this._notifyChange(change))
-    this.children.push(inner)
+    const inner = new VuexBlazeInnerCollectionObserver(this, ref, this.paths, this.refDepth)
+    this.innerObservers.push(inner)
     await inner.observe()
   }
 
@@ -32,16 +32,22 @@ export default class VuexBlazeCollectionObserver {
         ref = ref[query](...args)
       }
     })
-    ref = ref.startAfter(last(this.children).lastDoc)
-    const inner = new VuexBlazeInnerCollectionObserver(ref, paths, refDepth)
-    inner.onChange(change => this._notifyChange(change))
-    this.children.push(inner)
+    ref = ref.startAfter(last(this.innerObservers).lastDoc)
+    const inner = new VuexBlazeInnerCollectionObserver(ref, this.paths, this.refDepth)
+    this.innerObservers.push(inner)
     await inner.observe()
   }
 
+  get isIncremented() {
+    return !!this.innerObservers.length
+  }
 
   onChange(callback) {
     this.changeCallbacks.push(callback)
+  }
+
+  onDestructiveChange(callback) {
+    this.destructiveChangeCallbacks.push(callback)
   }
 
   stop() {
@@ -52,8 +58,20 @@ export default class VuexBlazeCollectionObserver {
     this.children = []
   }
 
-  _notifyChange(change) {
+  notifyChange(change) {
     this.changeCallbacks.forEach(callback => callback(change))
+  }
+
+  notifyDestructiveChange() {
+    this.destructiveChangeCallbacks.forEach(callback => callback())
+  }
+
+  startIndexOf(innerObserver) {
+    const innerIndex = this.innerObservers.indexOf(innerObserver)
+    return this.innerObservers.slice(0, innerIndex)
+      .reduce((sum, info) => {
+        return sum + info.length
+      }, 0)
   }
 
 }

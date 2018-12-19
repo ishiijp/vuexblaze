@@ -41,8 +41,8 @@ export default class VuexBlazeDocObserver {
         const rejectOnce = once(reject)
         this.unsubscribe = this.docRef.onSnapshot(async snapshot => {
           try {
-            this.currentDoc = this._processDocSnapshot(snapshot)
-            await this.notifyChange()
+            const change = this._processDocSnapshot(snapshot)
+            await this.notifyChange(change)
             resolveOnce()
           } catch(e) {
             rejectOnce(e)
@@ -50,8 +50,8 @@ export default class VuexBlazeDocObserver {
         }, rejectOnce)
       })
     } else if (this.snapshot) {
-      this.currentDoc = this._processDocSnapshot(snapshot)
-      await this.notifyChange()
+      const change = this._processDocSnapshot(this.snapshot)
+      await this.notifyChange(change)
     } else {
       throw new Error('Unexpected Initialization')
     }
@@ -103,7 +103,7 @@ export default class VuexBlazeDocObserver {
     }
     const data = processData(snapshot.data(), this.paths)
   
-    const doc = Object.defineProperty(data, 'id', 
+    this.currentDoc = Object.defineProperty(data, 'id', 
     {
       enumerable: false,
       writable: false,
@@ -118,10 +118,10 @@ export default class VuexBlazeDocObserver {
         delete this.refObservers[key]
       })
 
-    return doc
+    return new VuexBlazeDocChange(this)
   }
 
-  async notifyChange() {
-    await Promise.all(this.changeCallbacks.map(callback => callback(new VuexBlazeDocChange(this))))
+  async notifyChange(change) {
+    await Promise.all(this.changeCallbacks.map(callback => callback(change)))
   }
 }
