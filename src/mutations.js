@@ -1,20 +1,15 @@
 import {
-  VUEXBLAZE_SET_VALUE,
-  VUEXBLAZE_SET_PATH_DATA,
+  VUEXBLAZE_SET_PATH,
   VUEXBLAZE_COLLECTION_ADD,
   VUEXBLAZE_COLLECTION_REMOVE,
   VUEXBLAZE_COLLECTION_MODIFY,
-  VUEXBLAZE_COLLECTION_REPLACE,
-  VUEXBLAZE_COLLECTION_SPLICE
+  VUEXBLAZE_COLLECTION_CLEAR
 } from './types'
 
 import { set, get } from 'lodash'
 
 export const vuexblazeMutations = {
-  [VUEXBLAZE_SET_VALUE] (rootState, { target, name, data }) {
-    target[name] = data
-  },
-  [VUEXBLAZE_SET_PATH_DATA] (rootState, { state, paths, data }) {
+  [VUEXBLAZE_SET_PATH] (rootState, { state, paths, data }) {
     set(state, paths, data)
   },
   [VUEXBLAZE_COLLECTION_ADD] (rootState, { collection, index, data }) {
@@ -23,27 +18,24 @@ export const vuexblazeMutations = {
   [VUEXBLAZE_COLLECTION_REMOVE] (rootState, { collection, index }) {
     collection.splice(index, 1)
   },
-  [VUEXBLAZE_COLLECTION_REPLACE] (rootState, { collection, index, data, }) {
-    collection.splice(index, 1, data)
-  },
   [VUEXBLAZE_COLLECTION_MODIFY] (rootState, { collection, oldIndex, newIndex, data, }) {
     collection.splice(oldIndex, 1)
     collection.splice(newIndex, 0, data)
   },
-  [VUEXBLAZE_COLLECTION_SPLICE] (rootState, { target, index, howMany, elements } ) {
-    return target.splice(index, howMany, ...elements)
+  [VUEXBLAZE_COLLECTION_CLEAR] (rootState, { collection }) {
+    collection.splice(0, collection.length)
   }
 }
 
 export const setToPath = (commit, state, paths, data) => {
   commit(
-    VUEXBLAZE_SET_PATH_DATA, 
+    VUEXBLAZE_SET_PATH, 
     { state, paths, data }, 
     { root: true }
   )
 }
 
-export const addToPath = (commit, state, paths, index, data) => {
+export const addToCollectionPath = (commit, state, paths, index, data) => {
   commit(
     VUEXBLAZE_COLLECTION_ADD,
     { collection: get(state, paths) , index, data },
@@ -51,7 +43,7 @@ export const addToPath = (commit, state, paths, index, data) => {
   )
 }
 
-export const removeFromPath = (commit, state, paths, index) => {
+export const removeFromCollectionPath = (commit, state, paths, index) => {
   commit(
     VUEXBLAZE_COLLECTION_REMOVE,
     { collection: get(state, paths), index },
@@ -59,7 +51,7 @@ export const removeFromPath = (commit, state, paths, index) => {
   )
 }
 
-export const modifyPath = (commit, state, paths, oldIndex, newIndex, data) => {
+export const modifyCollectionPath = (commit, state, paths, oldIndex, newIndex, data) => {
   commit(
     VUEXBLAZE_COLLECTION_MODIFY,
     { collection: get(state, paths), oldIndex, newIndex, data },
@@ -67,10 +59,10 @@ export const modifyPath = (commit, state, paths, oldIndex, newIndex, data) => {
   )
 }
 
-export const replacePath = (commit, state, paths, index, data) => {
+export const clearCollectionPath = (commit, state, paths) => {
   commit(
-    VUEXBLAZE_COLLECTION_REPLACE,
-    { collection: get(state, paths), index, data },
+    VUEXBLAZE_COLLECTION_CLEAR,
+    { collection: get(state, paths) },
     { root: true }
   )
 }

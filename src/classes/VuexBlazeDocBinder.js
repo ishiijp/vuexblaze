@@ -2,11 +2,12 @@ import VuexBlazeDocObserver from './VuexBlazeDocObserver';
 
 export default class VuexBlazeDocBinder {
   
-  constructor(context, stateName, docRef) {
+  constructor(context, stateName, docRef, options) {
     this.docRef = docRef
     this.context = context
     this.stateName = stateName
-    this.observer = VuexBlazeDocObserver.createFromRef(docRef, [], 1)
+    this.options = options
+    this.observer = VuexBlazeDocObserver.createFromRef(docRef, [], this.options)
   }
 
   async bind() {

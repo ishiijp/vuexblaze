@@ -4,24 +4,24 @@ import VuexBlazeDocChange from './VuexBlazeDocChange';
 
 export default class VuexBlazeDocObserver {
 
-  constructor(paths, refDepth) {
+  constructor(paths, options) {
     this.paths = paths
-    this.refDepth = refDepth
+    this.options = options
     this.currentDoc = null
     this.refObservers = {}
     this.changeCallbacks = []
     this.observing = false
   }
 
-  static createFromRef(docRef, paths, refDepth) {
-    const self = new VuexBlazeDocObserver(paths, refDepth)
+  static createFromRef(docRef, paths, options) {
+    const self = new VuexBlazeDocObserver(paths, options)
     self.docRef = docRef
     self.unsubscribe = null
     return self
   }
 
-  static createFromSnapshot(snapshot, paths, refDepth, previousObserver) {
-    const self = new VuexBlazeDocObserver(paths, refDepth)
+  static createFromSnapshot(snapshot, paths, options, previousObserver) {
+    const self = new VuexBlazeDocObserver(paths, options)
     self.snapshot = snapshot
     if (previousObserver) {
       self.refObservers = previousObserver.refObservers
@@ -79,7 +79,7 @@ export default class VuexBlazeDocObserver {
     const processData = (data, currentPaths) => {
       Object.entries(data).forEach(([key, value]) => {
         if (isReference(value)) {
-          if (currentPaths.length < this.refDepth) {
+          if (currentPaths.length < this.options.refDepth) {
             const refKey = key + '-' + value.id
             refs.push(refKey)
             if (this.refObservers[refKey]) {
@@ -87,8 +87,8 @@ export default class VuexBlazeDocObserver {
             } else {
               data[key] = this.currentDoc ? this.currentDoc[key] || undefined : undefined
               this.refObservers[refKey] = isDocumentReference(value)
-                ? VuexBlazeDocObserver.createFromRef(value, [...currentPaths, key], this.refDepth)
-                : new VuexBlazeCollectionObserver(value, [...currentPaths, key], this.refDepth)
+                ? VuexBlazeDocObserver.createFromRef(value, [...currentPaths, key], this.options.refDepth)
+                : new VuexBlazeCollectionObserver(value, [...currentPaths, key], this.options.refDepth)
             }
           } else {
             data[key] = value.path

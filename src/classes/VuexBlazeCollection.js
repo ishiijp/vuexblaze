@@ -1,6 +1,5 @@
 import { actionName } from '../utils'
 import VuexBlazeCollectionBinder from './VuexBlazeCollectionBinder'
-import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
 
 export default class VuexBlazeCollection {
 
@@ -17,15 +16,16 @@ export default class VuexBlazeCollection {
     })
   }
 
-  bindTo(stateName) {
+  bindTo(stateName, userOptions) {
     const self = this
+    const options = { refDepth: 2, ...userOptions }
     let binder = null
     return {
       async [actionName('bind', stateName)](context) {
         if (binder) throw new Error('Already binded')
         const $firestore = this.$firestore || this.$fireStore
         const collectionRef = $firestore.collection(self.collectionName)
-        binder = new VuexBlazeCollectionBinder(context, stateName, collectionRef, self.filterName, self.queries)
+        binder = new VuexBlazeCollectionBinder(context, stateName, collectionRef, self.filterName, self.queries, options)
         return await binder.bind()
       },
       async [actionName('increment', stateName)]() {

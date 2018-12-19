@@ -3,11 +3,11 @@ import VuexBlazeInnerCollectionObserver from './VuexBlazeInnerCollectionObserver
 
 export default class VuexBlazeCollectionObserver {
 
-  constructor(collectionRef, queries, paths, refDepth) {
+  constructor(collectionRef, queries, paths, options) {
     this.collectionRef = collectionRef
     this.queries = queries
     this.paths = paths
-    this.refDepth = refDepth
+    this.options = options
     this.innerObservers = []
     this.changeCallbacks = []
     this.destructiveChangeCallbacks = []
@@ -20,7 +20,7 @@ export default class VuexBlazeCollectionObserver {
     this.queries.forEach(([query, args]) => {
       ref = ref[query](...args)
     })
-    const inner = new VuexBlazeInnerCollectionObserver(this, ref, this.paths, this.refDepth)
+    const inner = new VuexBlazeInnerCollectionObserver(this, ref, this.paths, this.options)
     this.innerObservers.push(inner)
     await inner.observe()
   }
@@ -33,7 +33,7 @@ export default class VuexBlazeCollectionObserver {
       }
     })
     ref = ref.startAfter(last(this.innerObservers).lastDoc)
-    const inner = new VuexBlazeInnerCollectionObserver(ref, this.paths, this.refDepth)
+    const inner = new VuexBlazeInnerCollectionObserver(ref, this.paths, this.options)
     this.innerObservers.push(inner)
     await inner.observe()
   }

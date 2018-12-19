@@ -4,11 +4,11 @@ import VuexBlazeCollectionChange from './VuexBlazeCollectionChange';
 
 export default class VuexBlazeInnerCollectionObserver {
 
-  constructor(parent, collectionRef, paths, refDepth) {
+  constructor(parent, collectionRef, paths, options) {
     this.parent = parent
     this.collectionRef = collectionRef
     this.paths = paths
-    this.refDepth = refDepth
+    this.options = options
     this.docObservers = []
     this.docSnapshots = []
 
@@ -68,7 +68,6 @@ export default class VuexBlazeInnerCollectionObserver {
   }
 
   _processDocChanges(docChanges) {
-    console.log(docChanges)
 
     docChanges.forEach(docChange => {
       switch(docChange.type) {
@@ -90,7 +89,7 @@ export default class VuexBlazeInnerCollectionObserver {
       switch(docChange.type) {
         case 'added':
           const addedObsever = VuexBlazeDocObserver.createFromSnapshot(
-            docChange.doc, [...this.paths, resultIndex], this.refDepth
+            docChange.doc, [...this.paths, resultIndex], this.options
           )
           this.docObservers[docChange.doc.id] = addedObsever
           change.push({ type: docChange.type, index: docChange.newIndex, observer: addedObsever })
@@ -102,7 +101,7 @@ export default class VuexBlazeInnerCollectionObserver {
           break
         case 'modified':
           const modifiedObserver = VuexBlazeDocObserver.createFromSnapshot(
-            docChange.doc, [...this.paths, resultIndex], this.refDepth, this.docObservers[docChange.doc.id]
+            docChange.doc, [...this.paths, resultIndex], this.options, this.docObservers[docChange.doc.id]
           )
           change.push({ 
             type: docChange.type, 

@@ -1,22 +1,18 @@
-import {
-  VUEXBLAZE_SET_VALUE,
-  VUEXBLAZE_COLLECTION_ADD,
-  VUEXBLAZE_COLLECTION_REMOVE,
-  VUEXBLAZE_COLLECTION_SPLICE
-} from '../types'
+import { clearCollectionPath } from '../mutations'
 import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver';
 
 export default class VuexBlazeCollectionBinder {
 
-  constructor(context, stateName, collectionRef, filterName, queries) {
+  constructor(context, stateName, collectionRef, filterName, queries, options) {
     this.context = context
     this.stateName = stateName
     this.collectionRef = collectionRef
     this.filterName = filterName
     this.destructiveChangeCallbacks = []
     this.queries = queries
+    this.options = options
     this.observer = new VuexBlazeCollectionObserver(
-      collectionRef, this._getQueries(), [], 2
+      collectionRef, this._getQueries(), [], options
     )
   }
 
@@ -42,9 +38,9 @@ export default class VuexBlazeCollectionBinder {
   async reload() {
     this.observer.stop()
     this.observer = new VuexBlazeCollectionObserver(
-      collectionRef, this._getQueries(), [], 2
+      collectionRef, this._getQueries(), [], options
     )
-    this._replaceCollection(0, this.collection.length)
+    clearCollectionPath(this.context.commit, this.context.state, this.stateName)
     await this.bind()
   }
 
@@ -52,7 +48,7 @@ export default class VuexBlazeCollectionBinder {
     this.observer.stop()
     this.destructiveChangeCallbacks = []
     this.innerCollectionInfos = []
-    this._replaceCollection(0, this.collection.length)
+    clearCollectionPath(this.context.commit, this.context.state, this.stateName)
   }
 
   onDestructiveChange(callback) {
@@ -70,19 +66,6 @@ export default class VuexBlazeCollectionBinder {
     } else {
       return this.queries.slice(0)
     }
-  }
-
-  _replaceCollection(index, howMany, elements = []) {
-    this.context.commit(
-      VUEXBLAZE_COLLECTION_SPLICE,
-      {
-        target: this.collection, 
-        index,
-        howMany,
-        elements
-      },
-      { root: true }
-    )
   }
 
 }
