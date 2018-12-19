@@ -1,3 +1,4 @@
+import { clearCollectionPath } from '../mutations'
 import VuexBlazeDocObserver from './VuexBlazeDocObserver';
 
 export default class VuexBlazeDocBinder {
@@ -7,10 +8,10 @@ export default class VuexBlazeDocBinder {
     this.context = context
     this.stateName = stateName
     this.options = options
-    this.observer = VuexBlazeDocObserver.createFromRef(docRef, [], this.options)
   }
 
   async bind() {
+    this.observer = VuexBlazeDocObserver.createFromRef(this.docRef, [], this.options)
     this.observer.onChange(async change => 
       await change.applyTo(this.context, this.stateName)
     )
@@ -20,6 +21,6 @@ export default class VuexBlazeDocBinder {
 
   unbind() {
     this.observer.stop()
-    this._setChange({ paths: [], data:null })
+    clearCollectionPath(this.context.commit, this.context.state, this.stateName)
   }
 }

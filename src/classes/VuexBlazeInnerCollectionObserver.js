@@ -1,4 +1,4 @@
-import { once, last } from 'lodash'
+import { once, head, last } from 'lodash'
 import VuexBlazeDocObserver from './VuexBlazeDocObserver'
 import VuexBlazeCollectionChange from './VuexBlazeCollectionChange';
 
@@ -25,7 +25,7 @@ export default class VuexBlazeInnerCollectionObserver {
   }
 
   get firstDoc() {
-    return this.docSnapshots[0]
+    return head(this.docSnapshots)
   }
 
   get lastDoc() {

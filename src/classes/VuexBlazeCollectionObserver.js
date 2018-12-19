@@ -1,4 +1,4 @@
-import { once, last } from 'lodash'
+import { last, remove } from 'lodash'
 import VuexBlazeInnerCollectionObserver from './VuexBlazeInnerCollectionObserver';
 
 export default class VuexBlazeCollectionObserver {
@@ -11,7 +11,6 @@ export default class VuexBlazeCollectionObserver {
     this.innerObservers = []
     this.changeCallbacks = []
     this.destructiveChangeCallbacks = []
-    this.unsubscribes = []
     this.isFirst = true
   }
 
@@ -33,9 +32,13 @@ export default class VuexBlazeCollectionObserver {
       }
     })
     ref = ref.startAfter(last(this.innerObservers).lastDoc)
-    const inner = new VuexBlazeInnerCollectionObserver(ref, this.paths, this.options)
+    const inner = new VuexBlazeInnerCollectionObserver(this, ref, this.paths, this.options)
     this.innerObservers.push(inner)
     await inner.observe()
+    if (inner.length == 0) {
+      inner.stop()
+      remove(this.innerObservers, o => o === inner)
+    }
   }
 
   get isIncremented() {
@@ -51,11 +54,10 @@ export default class VuexBlazeCollectionObserver {
   }
 
   stop() {
-    this.unsubscribe()
-    this.children.forEach(child => {
-      child.unsubscribe()
+    this.innerObservers.forEach(observer => {
+      observer.stop()
     })
-    this.children = []
+    this.innerObservers = []
   }
 
   notifyChange(change) {

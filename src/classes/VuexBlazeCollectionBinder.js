@@ -1,5 +1,6 @@
 import { clearCollectionPath } from '../mutations'
-import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver';
+import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
+import Queue from 'promise-queue'
 
 export default class VuexBlazeCollectionBinder {
 
@@ -11,44 +12,65 @@ export default class VuexBlazeCollectionBinder {
     this.destructiveChangeCallbacks = []
     this.queries = queries
     this.options = options
-    this.observer = new VuexBlazeCollectionObserver(
-      collectionRef, this._getQueries(), [], options
-    )
+
+    this.queue = new Queue(1, 1)
   }
 
-  get collection() {
-    return this.context.state[this.stateName]
-  }
+  bind() {
+    return new Promise((resolve, reject) => {
+      this.queue.add(async () => {
 
-  async bind() {
-    this.observer.onChange(async change => 
-      await change.applyTo(this.context, this.stateName)  
-    )
-    this.observer.onDestructiveChange(() => {
-      this.destructiveChangeCallbacks.forEach(callback => callback())
+        this.observer = new VuexBlazeCollectionObserver(
+          this.collectionRef, this._getQueries(), [], this.options
+        )
+        this.observer.onChange(async change => 
+          await change.applyTo(this.context, this.stateName)  
+        )
+        this.observer.onDestructiveChange(() => {
+          this.destructiveChangeCallbacks.forEach(callback => callback())
+        })
+        await this.observer.observe()
+        resolve(this)
+      })
     })
-    await this.observer.observe()
-    return this
   }
 
-  async increment() {
-    await this.observer.increment()
+  increment() {
+    return new Promise((resolve, reject) => {
+      this.queue.add(async () => {
+        if (!this.observer) reject('Not binded')
+        await this.observer.increment()
+        resolve(this)
+      })
+    })
   }
 
-  async reload() {
-    this.observer.stop()
-    this.observer = new VuexBlazeCollectionObserver(
-      collectionRef, this._getQueries(), [], options
-    )
-    clearCollectionPath(this.context.commit, this.context.state, this.stateName)
-    await this.bind()
+  reload() {
+    return new Promise((resolve, reject) => {
+      this.queue.add(async () => {
+        this.observer.stop()
+        clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
+        
+        const observer = new VuexBlazeCollectionObserver(
+          this.collectionRef, this._getQueries(), [], this.options
+        )
+        observer.changeCallbacks = this.observer.changeCallbacks
+        observer.destructiveChangeCallbacks = this.observer.destructiveChangeCallbacks
+
+        this.observer = observer
+        await this.observer.observe()
+        resolve(this)
+      })
+    })
   }
 
   unbind() {
-    this.observer.stop()
-    this.destructiveChangeCallbacks = []
-    this.innerCollectionInfos = []
-    clearCollectionPath(this.context.commit, this.context.state, this.stateName)
+    this.queue.add(async () => {
+      this.observer.stop()
+      this.destructiveChangeCallbacks = []
+      this.innerCollectionInfos = []
+      clearCollectionPath(this.context.commit, this.context.state, this.stateName)
+    })
   }
 
   onDestructiveChange(callback) {
@@ -67,5 +89,4 @@ export default class VuexBlazeCollectionBinder {
       return this.queries.slice(0)
     }
   }
-
 }
