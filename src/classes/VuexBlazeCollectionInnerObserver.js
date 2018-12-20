@@ -1,16 +1,16 @@
-import { once, head, last } from 'lodash'
-import VuexBlazeDocObserver from './VuexBlazeDocObserver'
+import { once, head, last, flatten } from 'lodash'
 import VuexBlazeCollectionChange from './VuexBlazeCollectionChange';
+import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor';
 
-export default class VuexBlazeInnerCollectionObserver {
+export default class VuexBlazeCollectionInnerObserver {
 
-  constructor(parent, collectionRef, paths, options) {
+  constructor(parent, collectionRef, path, options) {
     this.parent = parent
     this.collectionRef = collectionRef
-    this.paths = paths
+    this.path = path
     this.options = options
-    this.docObservers = []
     this.docSnapshots = []
+    this.docSnapshotProcessors = []
 
     this.isFirst = true
     this.unsubscribe = null
@@ -21,7 +21,10 @@ export default class VuexBlazeInnerCollectionObserver {
   }
 
   get childObservers() {
-    return Object.values(this.docObservers)
+    return flatten(
+      Object.values(this.docSnapshotProcessors)
+      .map(p => Object.values(p.refObservers))
+    )
   }
 
   get firstDoc() {
@@ -69,47 +72,52 @@ export default class VuexBlazeInnerCollectionObserver {
 
   _processDocChanges(docChanges) {
 
-    docChanges.forEach(docChange => {
-      switch(docChange.type) {
+    docChanges.forEach(({ type, doc, newIndex, oldIndex }) => {
+      switch(type) {
         case 'added':
-          this.docSnapshots.splice(docChange.newIndex, 0, docChange.doc)
+          this.docSnapshots.splice(newIndex, 0, doc)
           break
         case 'removed':
-          this.docSnapshots.splice(docChange.oldIndex, 1)
+          this.docSnapshots.splice(oldIndex, 1)
           break
         case 'modified':
-          this.docSnapshots.splice(docChange.newIndex, 1, docChange.doc)
+          this.docSnapshots.splice(oldIndex, 1)
+          this.docSnapshots.splice(newIndex, 0, doc)
           break
       }
     })
     const change = new VuexBlazeCollectionChange(this)
 
-    docChanges.forEach(docChange => {
-      const resultIndex = this.docSnapshots.indexOf(docChange.doc)
-      switch(docChange.type) {
-        case 'added':
-          const addedObsever = VuexBlazeDocObserver.createFromSnapshot(
-            docChange.doc, [...this.paths, resultIndex], this.options
-          )
-          this.docObservers[docChange.doc.id] = addedObsever
-          change.push({ type: docChange.type, index: docChange.newIndex, observer: addedObsever })
-          break
-        case 'removed':
-          this.docObservers[docChange.doc.id].stop()
-          delete this.docObservers[docChange.doc.id]
-          change.push({ type: docChange.type, index: docChange.oldIndex })
-          break
-        case 'modified':
-          const modifiedObserver = VuexBlazeDocObserver.createFromSnapshot(
-            docChange.doc, [...this.paths, resultIndex], this.options, this.docObservers[docChange.doc.id]
-          )
-          change.push({ 
-            type: docChange.type, 
-            oldIndex: docChange.oldIndex,
-            newIndex: docChange.newIndex, 
-            observer: modifiedObserver 
-          })
-          break
+    docChanges.forEach(({ type, doc, newIndex, oldIndex }) => {
+      const startIndex = this.startIndex
+      const resultIndex = this.docSnapshots.indexOf(doc)
+      if (type == 'added') {
+        const processor = new VuexBlazeDocSnapshotProcessor(
+          null,
+          doc, 
+          this.path.createChild(this.startIndex + resultIndex), 
+          this.options
+        )
+        processor.process()
+        this.docSnapshotProcessors[doc.id] = processor
+        change.push({ type, processor, index: startIndex + newIndex })
+      } else if (type == 'removed') {
+        this.docSnapshotProcessors[doc.id].stop()
+        delete this.docSnapshotProcessors[doc.id]
+        change.push({ type, index: startIndex + oldIndex })
+      } else if (type == 'modified') {
+        const processor = new VuexBlazeDocSnapshotProcessor(
+          this.docSnapshotProcessors[doc.id],
+          doc,
+          this.path.createChild(this.startIndex + resultIndex), 
+          this.options
+        )
+        processor.process()
+        change.push({
+          type, processor,
+          oldIndex: startIndex + oldIndex, 
+          newIndex: startIndex + newIndex
+        })
       }
     })
 
@@ -126,10 +134,8 @@ export default class VuexBlazeInnerCollectionObserver {
 
   stop() {
     this.unsubscribe()
-    Object.values(this.docObservers).forEach(observer => {
-      observer.stop()
-    })
-    this.docObservers = {}
+    Object.values(this.docSnapshotProcessors).forEach(p => p.stop())
+    this.docSnapshotProcessors = {}
     this.docSnapshots = []
   }
 

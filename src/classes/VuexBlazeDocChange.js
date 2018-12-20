@@ -7,13 +7,13 @@ export default class VuexBlazeDocChange {
   }
 
   async applyTo({ commit, state }, stateName) {
-    setToPath(commit, state, [stateName, ...this.observer.paths], this.observer.currentDoc)
+    setToPath(commit, state, [stateName, ...this.observer.path.get()], this.observer.currentDoc)
     
     await Promise.all(this.observer.childObservers
       .filter(o => !o.observing)
       .map(o =>  {
         o.onChange(change => {
-          setToPath(commit, state, [stateName, ...change.observer.paths], change.observer.currentDoc)
+          setToPath(commit, state, [stateName, ...change.observer.path.get()], change.observer.currentDoc)
         })
         o.observe()
       }))

@@ -13,28 +13,24 @@ export default class VuexBlazeCollectionChange {
   }
 
   async applyTo({ commit, state }, stateName) {
-    const startIndex = this.innerObserver.startIndex
-    const paths = [stateName, ...this.innerObserver.paths]
     
-    await Promise.all(this.elementChanges.map(({ type, index, oldIndex, newIndex, observer }) => {
-      observer.onChange(() => {
-        if (type == 'added') {
-          addToCollectionPath(commit, state, paths, startIndex + index, observer.currentDoc)
-        } else if (type == 'removed') {
-          removeFromCollectionPath(commit, state, paths, startIndex + index)
-        } else if (type == 'modified') {
-          modifyCollectionPath(commit ,state, paths, startIndex + oldIndex, startIndex + newIndex, observer.currentDoc)
-        }
-      })
-      return observer.observe()
-    }))
+    this.elementChanges.map(({ type, index, oldIndex, newIndex, processor }) => {
+      const parentPath = [stateName, ...processor.path.get().splice(0, -1)]
+      if (type == 'added') {
+        addToCollectionPath(commit, state, parentPath, index, processor.doc)
+      } else if (type == 'removed') {
+        removeFromCollectionPath(commit, state, parentPath, index)
+      } else if (type == 'modified') {
+        modifyCollectionPath(commit ,state, parentPath,  oldIndex, newIndex, processor.doc)
+      }
+    })
 
     await Promise.all(
-      flatten(this.innerObserver.childObservers.map(o => o.childObservers))
+      this.innerObserver.childObservers
       .filter(o => !o.observing)
       .map(o =>  {
         o.onChange(change => {
-          setToPath(commit, state, [stateName, ...change.observer.paths], change.observer.currentDoc)
+          setToPath(commit, state, [stateName, ...change.observer.path.get()], change.observer.currentDoc)
         })
         return o.observe()
       }))

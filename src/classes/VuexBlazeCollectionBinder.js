@@ -1,5 +1,6 @@
 import { clearCollectionPath } from '../mutations'
 import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
+import VuexBlazePath from './VuexBlazePath'
 import Queue from 'promise-queue'
 
 export default class VuexBlazeCollectionBinder {
@@ -21,7 +22,7 @@ export default class VuexBlazeCollectionBinder {
       this.queue.add(async () => {
 
         this.observer = new VuexBlazeCollectionObserver(
-          this.collectionRef, this._getQueries(), [], this.options
+          this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
         )
         this.observer.onChange(async change => 
           await change.applyTo(this.context, this.stateName)  
@@ -52,7 +53,7 @@ export default class VuexBlazeCollectionBinder {
         clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
         
         const observer = new VuexBlazeCollectionObserver(
-          this.collectionRef, this._getQueries(), [], this.options
+          this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
         )
         observer.changeCallbacks = this.observer.changeCallbacks
         observer.destructiveChangeCallbacks = this.observer.destructiveChangeCallbacks

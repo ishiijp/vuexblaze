@@ -1,12 +1,12 @@
 import { last, remove } from 'lodash'
-import VuexBlazeInnerCollectionObserver from './VuexBlazeInnerCollectionObserver';
+import VuexBlazeCollectionInnerObserver from './VuexBlazeCollectionInnerObserver';
 
 export default class VuexBlazeCollectionObserver {
 
-  constructor(collectionRef, queries, paths, options) {
+  constructor(collectionRef, queries, path, options) {
     this.collectionRef = collectionRef
     this.queries = queries
-    this.paths = paths
+    this.path = path
     this.options = options
     this.innerObservers = []
     this.changeCallbacks = []
@@ -19,7 +19,7 @@ export default class VuexBlazeCollectionObserver {
     this.queries.forEach(([query, args]) => {
       ref = ref[query](...args)
     })
-    const inner = new VuexBlazeInnerCollectionObserver(this, ref, this.paths, this.options)
+    const inner = new VuexBlazeCollectionInnerObserver(this, ref, this.path, this.options)
     this.innerObservers.push(inner)
     await inner.observe()
   }
@@ -32,7 +32,7 @@ export default class VuexBlazeCollectionObserver {
       }
     })
     ref = ref.startAfter(last(this.innerObservers).lastDoc)
-    const inner = new VuexBlazeInnerCollectionObserver(this, ref, this.paths, this.options)
+    const inner = new VuexBlazeCollectionInnerObserver(this, ref, this.path, this.options)
     this.innerObservers.push(inner)
     await inner.observe()
     if (inner.length == 0) {

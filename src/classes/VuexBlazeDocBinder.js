@@ -1,5 +1,6 @@
 import { clearCollectionPath } from '../mutations'
 import VuexBlazeDocObserver from './VuexBlazeDocObserver';
+import VuexBlazePath from './VuexBlazePath';
 
 export default class VuexBlazeDocBinder {
   
@@ -11,7 +12,7 @@ export default class VuexBlazeDocBinder {
   }
 
   async bind() {
-    this.observer = VuexBlazeDocObserver.createFromRef(this.docRef, [], this.options)
+    this.observer = new VuexBlazeDocObserver(this.docRef, VuexBlazePath.createRoot(this.options), this.options)
     this.observer.onChange(async change => 
       await change.applyTo(this.context, this.stateName)
     )
