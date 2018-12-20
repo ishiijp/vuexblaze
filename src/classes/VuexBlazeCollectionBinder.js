@@ -1,61 +1,85 @@
-import {
-  VUEXBLAZE_SET_VALUE,
-  VUEXBLAZE_COLLECTION_ADD,
-  VUEXBLAZE_COLLECTION_REMOVE,
-  VUEXBLAZE_COLLECTION_SPLICE
-} from '../types'
+import { clearCollectionPath } from '../mutations'
+import { VUEXBLAZE_STOP_ON_UNCONTROLLABLE_CHANGE } from '../options'
+import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
+import VuexBlazePath from './VuexBlazePath'
+import Queue from 'promise-queue'
 
 export default class VuexBlazeCollectionBinder {
 
-  constructor(observer, context, stateName, filterName, queries) {
-    this.observer = observer
+  constructor(context, stateName, collectionRef, filterName, queries, options) {
     this.context = context
     this.stateName = stateName
+    this.collectionRef = collectionRef
     this.filterName = filterName
-    this.destructiveChangeCallbacks = []
-    this.innerCollectionInfos = []
-    this.queries = queries || []
+    this.uncontrollableChangeCallbacks = []
+    this.queries = queries
+    this.options = options
+
+    this.queue = new Queue(1, 1)
   }
 
-  async bind() {
-    this.observer.onChange((innerCollectionIndex, collection) => {
-      const info = this._getInnerCollectionInfo(innerCollectionIndex)
-      const startIndex = this._calcStartIndex(innerCollectionIndex)
-      this._replaceCollection(startIndex, info.length, collection)
-      info.length = collection.length
+  bind() {
+    return new Promise((resolve, reject) => {
+      this.queue.add(async () => {
+
+        this.observer = new VuexBlazeCollectionObserver(
+          this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
+        )
+        this.observer.onChange(async change => 
+          await change.applyTo(this.context, this.stateName)  
+        )
+        this.observer.onUncontrollableChange(() => {
+          if (this.options.onUncontrollableChange == VUEXBLAZE_STOP_ON_UNCONTROLLABLE_CHANGE) {
+            this.observer.stop()
+          }
+          this.uncontrollableChangeCallbacks.forEach(callback => callback())
+        })
+        await this.observer.observe()
+        resolve(this)
+      })
     })
-    this.observer.onDestructiveChange(() => {
-      this.destructiveChangeCallbacks.forEach(callback => callback())
+  }
+
+  increment() {
+    return new Promise((resolve, reject) => {
+      this.queue.add(async () => {
+        if (!this.observer) reject('Not binded')
+        await this.observer.increment()
+        resolve(this)
+      })
     })
-    await this.observer.observe(this._getQueries())
-    return this
   }
 
-  async increment() {
-    await this.observer.next()
-  }
+  reload() {
+    return new Promise((resolve, reject) => {
+      this.queue.add(async () => {
+        this.observer.stop()
+        clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
+        
+        const observer = new VuexBlazeCollectionObserver(
+          this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
+        )
+        observer.changeCallbacks = this.observer.changeCallbacks
+        observer.uncontrollableChangeCallbacks = this.observer.uncontrollableChangeCallbacks
 
-  async reload() {
-    this.observer.stop()
-    this.observer = this.observer.clone()
-    this.innerCollectionInfos = []
-    this._replaceCollection(0, this.collection.length)
-    await this.bind()
+        this.observer = observer
+        await this.observer.observe()
+        resolve(this)
+      })
+    })
   }
 
   unbind() {
-    this.observer.stop()
-    this.destructiveChangeCallbacks = []
-    this.innerCollectionInfos = []
-    this._replaceCollection(0, this.collection.length)
+    this.queue.add(async () => {
+      this.observer.stop()
+      this.uncontrollableChangeCallbacks = []
+      this.innerCollectionInfos = []
+      clearCollectionPath(this.context.commit, this.context.state, this.stateName)
+    })
   }
 
-  onDestructiveChange(callback) {
-    this.destructiveChangeCallbacks.push(callback)
-  }
-
-  get collection() {
-    return this.context.state[this.stateName]
+  onUncontrollableChange(callback) {
+    this.uncontrollableChangeCallbacks.push(callback)
   }
 
   _getQueries() {
@@ -70,35 +94,4 @@ export default class VuexBlazeCollectionBinder {
       return this.queries.slice(0)
     }
   }
-
-  _getInnerCollectionInfo(index) {
-    if (this.innerCollectionInfos.length - 1 < index) {
-      const info = { length: 0 }
-      this.innerCollectionInfos.push(info)
-      return info
-    } else {
-      return this.innerCollectionInfos[index]
-    }
-  }
-
-  _calcStartIndex(innerCollectionIndex) {
-    return this.innerCollectionInfos.slice(0, innerCollectionIndex)
-      .reduce((sum, info) => {
-        return sum + info.length
-      }, 0)
-  }
-
-  _replaceCollection(index, howMany, elements = []) {
-    this.context.commit(
-      VUEXBLAZE_COLLECTION_SPLICE,
-      {
-        target: this.collection, 
-        index,
-        howMany,
-        elements
-      },
-      { root: true }
-    )
-  }
-
 }

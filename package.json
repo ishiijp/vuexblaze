@@ -1,12 +1,13 @@
 {
   "name": "vuexblaze",
   "description": "Yet another Firebase bindings for Vuex",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Yoshinori Ishii <yoshinori.ishii@gmail.com>",
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "promise-queue": "^2.2.5"
   },
   "main": "dist/cjs/index.js",
   "module": "src/index.js",
@@ -41,6 +42,7 @@
   "homepage": "https://github.com/ishiijp/vuexblaze#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0"
   },
@@ -54,6 +56,9 @@
           }
         }
       ]
+    ],
+    "plugins": [
+      "transform-object-rest-spread"
     ]
   }
 }

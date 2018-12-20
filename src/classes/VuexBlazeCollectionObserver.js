@@ -1,70 +1,79 @@
-import VuexBlazeInnerCollectionObserver from './VuexBlazeInnerCollectionObserver'
-import { last } from 'lodash'
+import { last, remove } from 'lodash'
+import VuexBlazeCollectionInnerObserver from './VuexBlazeCollectionInnerObserver';
 
 export default class VuexBlazeCollectionObserver {
 
-  constructor($firestore, collectionName) {
-    this.$firestore = $firestore
-    this.collectionName = collectionName
-    this.changeCallbacks = []
-    this.destructiveChangeCallbacks = []
-    this.unsubscribes = []
-    this.queries = []
-    this.innerCollectionObservers = []
-  }
-
-  clone() {
-    const clone = new VuexBlazeCollectionObserver(this.$firestore, this.collectionName)
-    clone.changeCallbacks = this.changeCallbacks
-    clone.destructiveChangeCallbacks = this.destructiveChangeCallbacks
-    return clone
-  }
-
-  async observe(queries) {
+  constructor(collectionRef, queries, path, options) {
+    this.collectionRef = collectionRef
     this.queries = queries
-    let collectionRef = this.$firestore.collection(this.collectionName)
+    this.path = path
+    this.options = options
+    this.innerObservers = []
+    this.changeCallbacks = []
+    this.uncontrollableChangeCallbacks = []
+    this.isFirst = true
+  }
+
+  async observe() {
+    let ref = this.collectionRef
     this.queries.forEach(([query, args]) => {
-      collectionRef = collectionRef[query](...args)
+      ref = ref[query](...args)
     })
-    const inner = new VuexBlazeInnerCollectionObserver(this, collectionRef)
-    this.innerCollectionObservers.push(inner)
+    const inner = new VuexBlazeCollectionInnerObserver(this, ref, this.path, this.options)
+    this.innerObservers.push(inner)
     await inner.observe()
   }
 
-  async next() {
-    let collectionRef = this.$firestore.collection(this.collectionName)
+  async increment() {
+    let ref = this.collectionRef
     this.queries.forEach(([query, args]) => {
       if (['where', 'orderBy', 'limit'].includes(query)) {
-        collectionRef = collectionRef[query](...args)
+        ref = ref[query](...args)
       }
     })
-    collectionRef = collectionRef.startAfter(last(this.innerCollectionObservers).lastDoc)
-    const inner = new VuexBlazeInnerCollectionObserver(this, collectionRef)
-    this.innerCollectionObservers.push(inner)
+    ref = ref.startAfter(last(this.innerObservers).lastDoc)
+    const inner = new VuexBlazeCollectionInnerObserver(this, ref, this.path, this.options)
+    this.innerObservers.push(inner)
     await inner.observe()
+    if (inner.length == 0) {
+      inner.stop()
+      remove(this.innerObservers, o => o === inner)
+    }
+  }
+
+  get incremented() {
+    return 1 < this.innerObservers.length
   }
 
   onChange(callback) {
     this.changeCallbacks.push(callback)
   }
 
-  onDestructiveChange(callback) {
-    this.destructiveChangeCallbacks.push(callback)
-  }
-
-  notifyDestructiveChange() {
-    this.destructiveChangeCallbacks.forEach(callback => callback())
-  }
-
-  notifyChange(innerCollectionObserver) {
-    const innerColletionIndex = this.innerCollectionObservers.indexOf(innerCollectionObserver)
-    this.changeCallbacks.forEach(callback => 
-      callback(innerColletionIndex, innerCollectionObserver.collection)
-    )
+  onUncontrollableChange(callback) {
+    this.uncontrollableChangeCallbacks.push(callback)
   }
 
   stop() {
-    this.unsubscribes.forEach(unsubscribe => unsubscribe())
+    this.innerObservers.forEach(observer => {
+      observer.stop()
+    })
+    this.innerObservers = []
+  }
+
+  notifyChange(change) {
+    this.changeCallbacks.forEach(callback => callback(change))
+  }
+
+  notifyUncontrollableChange() {
+    this.uncontrollableChangeCallbacks.forEach(callback => callback())
+  }
+
+  startIndexOf(innerObserver) {
+    const innerIndex = this.innerObservers.indexOf(innerObserver)
+    return this.innerObservers.slice(0, innerIndex)
+      .reduce((sum, info) => {
+        return sum + info.length
+      }, 0)
   }
 
 }
