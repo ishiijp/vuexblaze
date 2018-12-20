@@ -10,7 +10,7 @@ export default class VuexBlazeCollectionBinder {
     this.stateName = stateName
     this.collectionRef = collectionRef
     this.filterName = filterName
-    this.destructiveChangeCallbacks = []
+    this.uncontrollableChangeCallbacks = []
     this.queries = queries
     this.options = options
 
@@ -27,8 +27,8 @@ export default class VuexBlazeCollectionBinder {
         this.observer.onChange(async change => 
           await change.applyTo(this.context, this.stateName)  
         )
-        this.observer.onDestructiveChange(() => {
-          this.destructiveChangeCallbacks.forEach(callback => callback())
+        this.observer.onUncontrollableChange(() => {
+          this.uncontrollableChangeCallbacks.forEach(callback => callback())
         })
         await this.observer.observe()
         resolve(this)
@@ -56,7 +56,7 @@ export default class VuexBlazeCollectionBinder {
           this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
         )
         observer.changeCallbacks = this.observer.changeCallbacks
-        observer.destructiveChangeCallbacks = this.observer.destructiveChangeCallbacks
+        observer.uncontrollableChangeCallbacks = this.observer.uncontrollableChangeCallbacks
 
         this.observer = observer
         await this.observer.observe()
@@ -68,14 +68,14 @@ export default class VuexBlazeCollectionBinder {
   unbind() {
     this.queue.add(async () => {
       this.observer.stop()
-      this.destructiveChangeCallbacks = []
+      this.uncontrollableChangeCallbacks = []
       this.innerCollectionInfos = []
       clearCollectionPath(this.context.commit, this.context.state, this.stateName)
     })
   }
 
-  onDestructiveChange(callback) {
-    this.destructiveChangeCallbacks.push(callback)
+  onUncontrollableChange(callback) {
+    this.uncontrollableChangeCallbacks.push(callback)
   }
 
   _getQueries() {

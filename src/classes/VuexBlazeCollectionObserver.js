@@ -10,7 +10,7 @@ export default class VuexBlazeCollectionObserver {
     this.options = options
     this.innerObservers = []
     this.changeCallbacks = []
-    this.destructiveChangeCallbacks = []
+    this.uncontrollableChangeCallbacks = []
     this.isFirst = true
   }
 
@@ -49,8 +49,8 @@ export default class VuexBlazeCollectionObserver {
     this.changeCallbacks.push(callback)
   }
 
-  onDestructiveChange(callback) {
-    this.destructiveChangeCallbacks.push(callback)
+  onUncontrollableChange(callback) {
+    this.uncontrollableChangeCallbacks.push(callback)
   }
 
   stop() {
@@ -64,8 +64,8 @@ export default class VuexBlazeCollectionObserver {
     this.changeCallbacks.forEach(callback => callback(change))
   }
 
-  notifyDestructiveChange() {
-    this.destructiveChangeCallbacks.forEach(callback => callback())
+  notifyUncontrollableChange() {
+    this.uncontrollableChangeCallbacks.forEach(callback => callback())
   }
 
   startIndexOf(innerObserver) {

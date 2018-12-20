@@ -51,10 +51,10 @@ export default class VuexBlazeCollectionInnerObserver {
           if (querySnapshot.metadata.fromCache) return
 
           const { added, removed } = this.constructor.inspectChanges(docChanges)
-          const destructive = !this.isFirst && this.parent.incremented && (added || removed)
+          const uncontrollable = !this.isFirst && this.parent.incremented && (added || removed)
 
-          if (destructive) {
-            this.notifyDestructiveChange()
+          if (uncontrollable) {
+            this.notifyUncontrollableChange()
           } else {
             const change = this._processDocChanges(docChanges)
             await this.notifyChange(change)
@@ -138,8 +138,8 @@ export default class VuexBlazeCollectionInnerObserver {
     this.parent.notifyChange(change)
   }
 
-  notifyDestructiveChange() {
-    this.parent.notifyDestructiveChange()
+  notifyUncontrollableChange() {
+    this.parent.notifyUncontrollableChange()
   }
 
   stop() {
