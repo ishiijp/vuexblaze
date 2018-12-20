@@ -51,7 +51,7 @@ export default class VuexBlazeCollectionInnerObserver {
           if (querySnapshot.metadata.fromCache) return
 
           const { added, removed } = this.constructor.inspectChanges(docChanges)
-          const destructive = !this.isFirst && !this.parent.incremented && (added || removed)
+          const destructive = !this.isFirst && this.parent.incremented && (added || removed)
 
           if (destructive) {
             this.notifyDestructiveChange()
@@ -100,11 +100,19 @@ export default class VuexBlazeCollectionInnerObserver {
         )
         processor.process()
         this.docSnapshotProcessors[doc.id] = processor
-        change.push({ type, processor, index: startIndex + newIndex })
+        change.push({ 
+          type, 
+          doc: processor.doc, 
+          path: this.path,
+          index: startIndex + newIndex })
       } else if (type == 'removed') {
         this.docSnapshotProcessors[doc.id].stop()
         delete this.docSnapshotProcessors[doc.id]
-        change.push({ type, index: startIndex + oldIndex })
+        change.push({ 
+          type, 
+          path: this.path,
+          index: startIndex + oldIndex 
+        })
       } else if (type == 'modified') {
         const processor = new VuexBlazeDocSnapshotProcessor(
           this.docSnapshotProcessors[doc.id],
@@ -114,7 +122,9 @@ export default class VuexBlazeCollectionInnerObserver {
         )
         processor.process()
         change.push({
-          type, processor,
+          type,
+          doc: processor.doc,
+          path: this.path,
           oldIndex: startIndex + oldIndex, 
           newIndex: startIndex + newIndex
         })

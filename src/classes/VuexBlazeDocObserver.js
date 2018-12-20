@@ -1,4 +1,4 @@
-import { once, flatten } from 'lodash'
+import { once } from 'lodash'
 import VuexBlazeDocChange from './VuexBlazeDocChange';
 import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor';
 

@@ -41,8 +41,8 @@ export default class VuexBlazeCollectionObserver {
     }
   }
 
-  get isIncremented() {
-    return !!this.innerObservers.length
+  get incremented() {
+    return 1 < this.innerObservers.length
   }
 
   onChange(callback) {

@@ -1,5 +1,4 @@
 import { setToPath, addToCollectionPath, removeFromCollectionPath, modifyCollectionPath } from '../mutations'
-import { flatten } from 'lodash'
 
 export default class VuexBlazeCollectionChange {
 
@@ -14,14 +13,14 @@ export default class VuexBlazeCollectionChange {
 
   async applyTo({ commit, state }, stateName) {
     
-    this.elementChanges.map(({ type, index, oldIndex, newIndex, processor }) => {
-      const parentPath = [stateName, ...processor.path.get().splice(0, -1)]
+    this.elementChanges.map(({ type, index, oldIndex, newIndex, doc, path }) => {
+      const collectionPath = [stateName, ...path.get()]
       if (type == 'added') {
-        addToCollectionPath(commit, state, parentPath, index, processor.doc)
+        addToCollectionPath(commit, state, collectionPath, index, doc)
       } else if (type == 'removed') {
-        removeFromCollectionPath(commit, state, parentPath, index)
+        removeFromCollectionPath(commit, state, collectionPath, index)
       } else if (type == 'modified') {
-        modifyCollectionPath(commit ,state, parentPath,  oldIndex, newIndex, processor.doc)
+        modifyCollectionPath(commit ,state, collectionPath,  oldIndex, newIndex, doc)
       }
     })
 
