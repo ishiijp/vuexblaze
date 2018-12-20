@@ -1,4 +1,5 @@
 import { clearCollectionPath } from '../mutations'
+import { VUEXBLAZE_STOP_ON_UNCONTROLLABLE_CHANGE } from '../options'
 import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
 import VuexBlazePath from './VuexBlazePath'
 import Queue from 'promise-queue'
@@ -28,6 +29,9 @@ export default class VuexBlazeCollectionBinder {
           await change.applyTo(this.context, this.stateName)  
         )
         this.observer.onUncontrollableChange(() => {
+          if (this.options.onUncontrollableChange == VUEXBLAZE_STOP_ON_UNCONTROLLABLE_CHANGE) {
+            this.observer.stop()
+          }
           this.uncontrollableChangeCallbacks.forEach(callback => callback())
         })
         await this.observer.observe()

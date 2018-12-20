@@ -1,4 +1,5 @@
 import { actionName } from '../utils'
+import { VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE } from '../options'
 import VuexBlazeCollectionBinder from './VuexBlazeCollectionBinder'
 
 export default class VuexBlazeCollection {
@@ -18,7 +19,7 @@ export default class VuexBlazeCollection {
 
   bindTo(stateName, userOptions) {
     const self = this
-    const options = { refDepth: 2, ...userOptions }
+    const options = { ...this.DEFAULT_OPTIONS, ...userOptions }
     let binder = null
     return {
       async [actionName('bind', stateName)](context) {
@@ -46,3 +47,7 @@ export default class VuexBlazeCollection {
   }
 }
 VuexBlazeCollection.prototype.FIRESTORE_METHODS = ['where', 'orderBy', 'startAt', 'startAfter', 'endAt', 'endBefore','limit']
+VuexBlazeCollection.prototype.DEFAULT_OPTIONS = {
+  refDepth: 2,
+  onUncontrollableChange: VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE
+}

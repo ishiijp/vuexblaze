@@ -8,7 +8,7 @@ import {
 
 import { set, get } from 'lodash'
 
-export const vuexblazeMutations = {
+export default {
   [VUEXBLAZE_SET_PATH] (rootState, { state, paths, data }) {
     set(state, paths, data)
   },

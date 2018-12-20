@@ -1,6 +1,7 @@
 import { once, head, last, flatten } from 'lodash'
 import VuexBlazeCollectionChange from './VuexBlazeCollectionChange';
 import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor';
+import { VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE } from '../options'
 
 export default class VuexBlazeCollectionInnerObserver {
 
@@ -51,7 +52,11 @@ export default class VuexBlazeCollectionInnerObserver {
           if (querySnapshot.metadata.fromCache) return
 
           const { added, removed } = this.constructor.inspectChanges(docChanges)
-          const uncontrollable = !this.isFirst && this.parent.incremented && (added || removed)
+          const uncontrollable = 
+            !this.isFirst 
+            && this.parent.incremented 
+            && (added || removed)
+            && this.options.onUncontrollableChange != VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE
 
           if (uncontrollable) {
             this.notifyUncontrollableChange()
