@@ -1,7 +1,7 @@
 {
   "name": "vuexblaze",
   "description": "Yet another Firebase bindings for Vuex",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "author": "Yoshinori Ishii <yoshinori.ishii@gmail.com>",
   "license": "MIT",
   "private": false,

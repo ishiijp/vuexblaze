@@ -7,7 +7,7 @@
       <h2>All Customers (Alphabetical order)</h2>
       <ul>
         <li v-for="(customer, index) in allCustomers" :key="index">
-          {{customer.firstName}} {{customer.lastName}} 
+          {{customer.firstName}} {{customer.lastName}}
           <span v-if="customer.isVIP">
             <b>[VIP]</b>
             <a href="#" @click="toNormal(customer)">Change to Normal</a>
@@ -21,17 +21,18 @@
     </div>
 
     <div>
+      <h2>Filtered Customers</h2>
       <template v-if="isVIP">
-        <h2 >VIP Customers</h2>
+        <span>Showing only VIP</span>
         <a href="#" @click.prevent="setIsVIP(false)">Show Normal Customers</a>
       </template>
       <template v-if="!isVIP">
-        <h2>Normal Customers</h2>
+        <span>Showing only Normal</span>
         <a href="#" @click.prevent="setIsVIP(true)">Show VIP Customers</a>
       </template>
       <ul>
         <li v-for="(customer, index) in filteredCustomers" :key="index">
-          {{customer.firstName}} {{customer.lastName}} 
+          {{customer.firstName}} {{customer.lastName}}
           <span v-if="customer.isVIP">
             <b>[VIP]</b>
             <a href="#" @click="toNormal(customer)">change to Normal</a>
@@ -41,10 +42,11 @@
             <a href="#" @click="toVIP(customer)">change to VIP</a>
           </span>
         </li>
+        <li>
+          <a href="#" @click="incrementFilteredList">Show more</a>
+        </li>
       </ul>
-
     </div>
-
   </section>
 </template>
 
@@ -64,9 +66,9 @@ export default {
     this.$store.dispatch('customers/bindAllList')
     this.$store.dispatch('customers/bindFilteredList')
   },
-  methods: { 
+  methods: {
     add() {
-      this.$fireStore.collection('customers').add({
+      this.$store.dispatch('customers/addDocToAllList', {
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         isVIP: false
@@ -77,16 +79,20 @@ export default {
       this.$store.dispatch('customers/reloadFilteredList')
     },
     toVIP(customer) {
-      this.$fireStore.collection('customers').doc(customer.id).set({
-        isVIP: true
-      }, { merge: true})
+      this.$store.dispatch('customers/updateDocInAllList', [
+        customer.id,
+        { isVIP: true }
+      ])
     },
     toNormal(customer) {
-      this.$fireStore.collection('customers').doc(customer.id).set({
-        isVIP: false
-      }, { merge: true})
+      this.$store.dispatch('customers/updateDocInAllList', [
+        customer.id,
+        { isVIP: false }
+      ])
     },
+    incrementFilteredList() {
+      this.$store.dispatch('customers/incrementFilteredList')
+    }
   }
 }
-
 </script>

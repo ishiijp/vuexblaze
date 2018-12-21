@@ -17,7 +17,7 @@
     "nuxt": "^2.0.0",
     "nuxt-fire": "^1.2.1",
     "random-name": "^0.1.2",
-    "vuexblaze": "^0.0.4"
+    "vuexblaze": "^0.0.6"
   },
   "devDependencies": {
     "dotenv-cli": "^1.4.0",
