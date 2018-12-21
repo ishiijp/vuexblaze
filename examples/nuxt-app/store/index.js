@@ -1,5 +1,3 @@
-import { vuexblazeMutations } from 'vuexblaze'
+import { vuexblazePlugin } from 'vuexblaze'
 
-export const mutations = {
-  ...vuexblazeMutations
-}
+export const plugins = [vuexblazePlugin]

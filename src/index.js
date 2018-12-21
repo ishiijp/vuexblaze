@@ -2,7 +2,7 @@
 
 import VuexBlazeDoc from './classes/VuexBlazeDoc'
 import VuexBlazeCollection from './classes/VuexBlazeCollection'
-import vuexblazeMutations from './mutations'
+import vuexblazePlugin from './plugin'
 import vuexblazeTypes from './types'
 import vuexblazeOptions from './options'
 
@@ -17,7 +17,7 @@ function collection(collectionName) {
 export {
   doc,
   collection,
-  vuexblazeMutations,
   vuexblazeTypes,
-  vuexblazeOptions
+  vuexblazeOptions,
+  vuexblazePlugin
 }
