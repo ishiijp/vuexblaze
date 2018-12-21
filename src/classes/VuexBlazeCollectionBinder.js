@@ -53,7 +53,6 @@ export default class VuexBlazeCollectionBinder {
     return new Promise((resolve, reject) => {
       this.queue.add(async () => {
         if (!this.binded) return reject('Not binded')
-        console.log(this.binded)
         await this.observer.increment()
         resolve(this)
       })
