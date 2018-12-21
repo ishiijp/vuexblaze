@@ -1,5 +1,7 @@
 import { actionNamer } from '../utils'
+import { isString } from 'lodash'
 import { VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE } from '../options'
+import VuexBlazeDoc from './VuexBlazeDoc'
 import VuexBlazeCollectionBinder from './VuexBlazeCollectionBinder'
 import VuexBlazeConfig from './VuexBlazeConfig'
 
@@ -17,6 +19,10 @@ export default class VuexBlazeCollection {
     })
   }
 
+  doc() {
+    return new VuexBlazeDoc(this.collectionName)
+  }
+
   bindTo(stateName, userOptions) {
     const self = this
     const options = { ...this.DEFAULT_OPTIONS, ...userOptions }
@@ -25,7 +31,6 @@ export default class VuexBlazeCollection {
 
     return {
       async [actionName('bind', stateName)](context) {
-        if (binder) throw new Error('Already binded')
         const $firestore = this.$firestore || this.$fireStore
         const collectionRef = $firestore.collection(self.collectionName)
         binder = new VuexBlazeCollectionBinder(
@@ -51,6 +56,33 @@ export default class VuexBlazeCollection {
       async [actionName('reload', stateName)]() {
         if (!binder) throw new Error('Not binded')
         await binder.reload()
+      },
+      async [actionName('updateDocIn', stateName)](context, payload) {
+        if (!binder) throw new Error('Not binded')
+        const [id, data] = Array.isArray(payload)
+          ? payload
+          : [payload.id, { ...payload }]
+        delete data.id
+        if (!id) throw new Error('"id" is required to update doc')
+        await binder.collectionRef.doc(id).set(data, { merge: true })
+      },
+      async [actionName('addDocTo', stateName)](context, payload) {
+        if (Array.isArray(payload)) {
+          const [id, data] = payload
+          await binder.collectionRef.doc(id).set(data)
+        } else if (payload.id) {
+          const id = payload.id
+          const data = { ...payload }
+          delete data.id
+          await binder.collectionRef.doc(id).set(data)
+        } else {
+          await binder.collectionRef.add(payload)
+        }
+      },
+      async [actionName('deleteDocFrom', stateName)](context, payload) {
+        const id = isString(payload) ? payload : payload.id
+        if (!id) throw new Error('"id" is required to update doc')
+        await binder.collectionRef.doc(id).delete()
       }
     }
   }

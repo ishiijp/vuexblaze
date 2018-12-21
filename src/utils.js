@@ -8,8 +8,7 @@ export const actionNamer = caseName => {
   } else if (caseName === VUEXBLAZW_SCREAMING_SNAKE_CASE) {
     return (action, target) => `${action}_${snakeCase(target)}`.toUpperCase()
   }
-  return (action, target) =>
-    `${action.toLowerCase()}${upperFirst(camelCase(target))}`
+  return (action, target) => `${action}${upperFirst(camelCase(target))}`
 }
 
 export const isObject = o => o && typeof o === 'object'

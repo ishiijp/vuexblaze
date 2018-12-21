@@ -22,14 +22,9 @@ export default class VuexBlazeCollectionBinder {
   }
 
   bind() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.queue.add(async () => {
-        if (this.binded) return reject('Already binded')
-        clearCollectionPath(
-          this.context.commit,
-          this.context.state,
-          this.stateName
-        )
+        this._unbind()
         this.observer = new VuexBlazeCollectionObserver(
           this.collectionRef,
           this._getQueries(),
@@ -94,17 +89,7 @@ export default class VuexBlazeCollectionBinder {
 
   unbind() {
     this.queue.add(async () => {
-      if (this.observer) {
-        this.observer.stop()
-        this.observer = null
-      }
-      this.uncontrollableChangeCallbacks = []
-      this.innerCollectionInfos = []
-      clearCollectionPath(
-        this.context.commit,
-        this.context.state,
-        this.stateName
-      )
+      this._unbind()
     })
   }
 
@@ -112,14 +97,25 @@ export default class VuexBlazeCollectionBinder {
     this.uncontrollableChangeCallbacks.push(callback)
   }
 
+  _unbind() {
+    if (this.observer) {
+      this.observer.stop()
+      this.observer = null
+    }
+    this.uncontrollableChangeCallbacks = []
+    this.innerCollectionInfos = []
+    clearCollectionPath(this.context.commit, this.context.state, this.stateName)
+  }
+
   _getQueries() {
     if (this.filterName && this.queries.length) {
       throw new Error('Duplicate query settings')
     }
     if (this.filterName) {
-      return this.context.getters[this.filterName].map(([methodName, args]) => Array.isArray(args) ? [methodName, args] : [methodName, [args]])
-    } 
-      return this.queries.slice(0)
-    
+      return this.context.getters[this.filterName].map(([methodName, args]) =>
+        Array.isArray(args) ? [methodName, args] : [methodName, [args]]
+      )
+    }
+    return this.queries.slice(0)
   }
 }
