@@ -1,6 +1,7 @@
-import { actionName } from '../utils'
+import { actionNamer } from '../utils'
 import { VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE } from '../options'
 import VuexBlazeCollectionBinder from './VuexBlazeCollectionBinder'
+import VuexBlazeConfig from './VuexBlazeConfig'
 
 export default class VuexBlazeCollection {
 
@@ -21,6 +22,8 @@ export default class VuexBlazeCollection {
     const self = this
     const options = { ...this.DEFAULT_OPTIONS, ...userOptions }
     let binder = null
+    const actionName = actionNamer(VuexBlazeConfig.get('actionNameCase'))
+
     return {
       async [actionName('bind', stateName)](context) {
         const $firestore = this.$firestore || this.$fireStore

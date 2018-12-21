@@ -1,5 +1,24 @@
-export const actionName = (name, baseName) => {
-  return `${name.toUpperCase()}_${baseName.toUpperCase()}`
+import { 
+  VUEXBLAZE_SNAKE_CASE, 
+  VUEXBLAZW_SCREAMING_SNAKE_CASE 
+} from './options'
+
+import { camelCase, upperFirst, snakeCase } from 'lodash'
+
+export const actionNamer = caseName => {
+  if (caseName == VUEXBLAZE_SNAKE_CASE) {
+    return (action, target) => {
+      return `${action}_${snakeCase(target)}`.toLowerCase()
+    }
+  } else if (caseName == VUEXBLAZW_SCREAMING_SNAKE_CASE) {
+    return (action, target) => {
+      return `${action}_${snakeCase(target)}`.toUpperCase()
+    }
+  } else {
+    return (action, target) => {
+      return `${action.toLowerCase()}${upperFirst(camelCase(target))}`
+    }
+  }
 }
 
 export const isObject = o => o && typeof o === 'object'

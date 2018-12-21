@@ -1,5 +1,6 @@
-import { actionName } from '../utils'
+import { actionNamer } from '../utils'
 import VuexBlazeDocBinder from './VuexBlazeDocBinder'
+import VuexBlazeConfig from './VuexBlazeConfig'
 
 export default class VuexBlazeDoc {
 
@@ -11,6 +12,8 @@ export default class VuexBlazeDoc {
     const self = this
     const options = { refDepth: 1, ...userOptions }
     let binder = null
+    const actionName = actionNamer(VuexBlazeConfig.get('actionNameCase'))
+
     return {
       async [actionName('bind', stateName)](context, docId) {
         const $firestore = this.$firestore || this.$fireStore

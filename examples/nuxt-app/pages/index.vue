@@ -18,18 +18,16 @@
           </span>
         </li>
       </ul>
-
-      <button @click="incrementAllCustomers">view more</button>
     </div>
 
     <div>
       <template v-if="isVIP">
         <h2 >VIP Customers</h2>
-        <a href="#" @click="setIsVIP(false)">Show Normal Customers</a>
+        <a href="#" @click.prevent="setIsVIP(false)">Show Normal Customers</a>
       </template>
       <template v-if="!isVIP">
         <h2>Normal Customers</h2>
-        <a href="#" @click="setIsVIP(true)">Show VIP Customers</a>
+        <a href="#" @click.prevent="setIsVIP(true)">Show VIP Customers</a>
       </template>
       <ul>
         <li v-for="(customer, index) in filteredCustomers" :key="index">
@@ -63,13 +61,10 @@ export default {
     })
   },
   async mounted() {
-    this.$store.dispatch('customers/BIND_ALLLIST')
-    this.$store.dispatch('customers/BIND_FILTEREDLIST')
+    this.$store.dispatch('customers/bindAllList')
+    this.$store.dispatch('customers/bindFilteredList')
   },
   methods: { 
-    incrementAllCustomers() {
-      this.$store.dispatch('customers/INCREMENT_ALLLIST')
-    },
     add() {
       this.$fireStore.collection('customers').add({
         firstName: faker.name.firstName(),
@@ -78,8 +73,8 @@ export default {
       })
     },
     setIsVIP(value) {
-      this.$store.commit('customers/SET_IS_VIP', value)
-      this.$store.dispatch('customers/RELOAD_FILTEREDLIST')
+      this.$store.commit('customers/setIsVIP', value)
+      this.$store.dispatch('customers/reloadFilteredList')
     },
     toVIP(customer) {
       this.$fireStore.collection('customers').doc(customer.id).set({

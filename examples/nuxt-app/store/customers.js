@@ -3,7 +3,7 @@ import { collection, doc } from 'vuexblaze'
 export const state = () => ({
   allList: [],
   filteredList: [],
-  isVIP: true
+  isVIP: false
 })
 
 export const getters = {
@@ -16,7 +16,7 @@ export const getters = {
 }
 
 export const mutations = {
-  SET_IS_VIP: (state, value) => {
+  setIsVIP: (state, value) => {
     state.isVIP = value
   }
 }
