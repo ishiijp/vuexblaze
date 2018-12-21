@@ -22,6 +22,7 @@ export default class VuexBlazeCollectionBinder {
     return new Promise((resolve, reject) => {
       this.queue.add(async () => {
 
+        clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
         this.observer = new VuexBlazeCollectionObserver(
           this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
         )
