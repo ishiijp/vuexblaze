@@ -3,7 +3,6 @@ import VuexBlazeDocBinder from './VuexBlazeDocBinder'
 import VuexBlazeConfig from './VuexBlazeConfig'
 
 export default class VuexBlazeDoc {
-
   constructor(collectionName) {
     this.collectionName = collectionName
   }
@@ -21,7 +20,7 @@ export default class VuexBlazeDoc {
         binder = new VuexBlazeDocBinder(context, stateName, docRef, options)
         return binder.bind()
       },
-      async [actionName('unbind', stateName)] () {
+      async [actionName('unbind', stateName)]() {
         if (!binder) {
           throw new Error('Not binded')
         }

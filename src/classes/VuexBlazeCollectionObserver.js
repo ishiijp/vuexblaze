@@ -1,8 +1,7 @@
 import { last, remove } from 'lodash'
-import VuexBlazeCollectionInnerObserver from './VuexBlazeCollectionInnerObserver';
+import VuexBlazeCollectionInnerObserver from './VuexBlazeCollectionInnerObserver'
 
 export default class VuexBlazeCollectionObserver {
-
   constructor(collectionRef, queries, path, options) {
     this.collectionRef = collectionRef
     this.queries = queries
@@ -19,7 +18,12 @@ export default class VuexBlazeCollectionObserver {
     this.queries.forEach(([query, args]) => {
       ref = ref[query](...args)
     })
-    const inner = new VuexBlazeCollectionInnerObserver(this, ref, this.path, this.options)
+    const inner = new VuexBlazeCollectionInnerObserver(
+      this,
+      ref,
+      this.path,
+      this.options
+    )
     this.innerObservers.push(inner)
     await inner.observe()
   }
@@ -32,10 +36,15 @@ export default class VuexBlazeCollectionObserver {
       }
     })
     ref = ref.startAfter(last(this.innerObservers).lastDoc)
-    const inner = new VuexBlazeCollectionInnerObserver(this, ref, this.path, this.options)
+    const inner = new VuexBlazeCollectionInnerObserver(
+      this,
+      ref,
+      this.path,
+      this.options
+    )
     this.innerObservers.push(inner)
     await inner.observe()
-    if (inner.length == 0) {
+    if (inner.length === 0) {
       inner.stop()
       remove(this.innerObservers, o => o === inner)
     }
@@ -70,10 +79,8 @@ export default class VuexBlazeCollectionObserver {
 
   startIndexOf(innerObserver) {
     const innerIndex = this.innerObservers.indexOf(innerObserver)
-    return this.innerObservers.slice(0, innerIndex)
-      .reduce((sum, info) => {
-        return sum + info.length
-      }, 0)
+    return this.innerObservers
+      .slice(0, innerIndex)
+      .reduce((sum, info) => sum + info.length, 0)
   }
-
 }

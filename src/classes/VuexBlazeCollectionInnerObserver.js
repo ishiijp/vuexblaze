@@ -1,10 +1,9 @@
 import { once, head, last, flatten } from 'lodash'
-import VuexBlazeCollectionChange from './VuexBlazeCollectionChange';
-import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor';
+import VuexBlazeCollectionChange from './VuexBlazeCollectionChange'
+import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor'
 import { VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE } from '../options'
 
 export default class VuexBlazeCollectionInnerObserver {
-
   constructor(parent, collectionRef, path, options) {
     this.parent = parent
     this.collectionRef = collectionRef
@@ -23,8 +22,9 @@ export default class VuexBlazeCollectionInnerObserver {
 
   get childObservers() {
     return flatten(
-      Object.values(this.docSnapshotProcessors)
-      .map(p => Object.values(p.refObservers))
+      Object.values(this.docSnapshotProcessors).map(p =>
+        Object.values(p.refObservers)
+      )
     )
   }
 
@@ -46,17 +46,19 @@ export default class VuexBlazeCollectionInnerObserver {
       const rejectOnce = once(reject)
       let docChanges = []
 
-      this.unsubscribe = this.collectionRef.onSnapshot({includeMetadataChanges: true}, 
+      this.unsubscribe = this.collectionRef.onSnapshot(
+        { includeMetadataChanges: true },
         async querySnapshot => {
           docChanges = docChanges.concat(querySnapshot.docChanges())
           if (querySnapshot.metadata.fromCache) return
 
           const { added, removed } = this.constructor.inspectChanges(docChanges)
-          const uncontrollable = 
-            !this.isFirst 
-            && this.parent.incremented 
-            && (added || removed)
-            && this.options.onUncontrollableChange != VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE
+          const uncontrollable =
+            !this.isFirst &&
+            this.parent.incremented &&
+            (added || removed) &&
+            this.options.onUncontrollableChange !==
+              VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE
 
           if (uncontrollable) {
             this.notifyUncontrollableChange()
@@ -71,14 +73,15 @@ export default class VuexBlazeCollectionInnerObserver {
           }
 
           docChanges = []
-        }, rejectOnce)
+        },
+        rejectOnce
+      )
     })
   }
 
   _processDocChanges(docChanges) {
-
     docChanges.forEach(({ type, doc, newIndex, oldIndex }) => {
-      switch(type) {
+      switch (type) {
         case 'added':
           this.docSnapshots.splice(newIndex, 0, doc)
           break
@@ -96,33 +99,34 @@ export default class VuexBlazeCollectionInnerObserver {
     docChanges.forEach(({ type, doc, newIndex, oldIndex }) => {
       const startIndex = this.startIndex
       const resultIndex = this.docSnapshots.indexOf(doc)
-      if (type == 'added') {
+      if (type === 'added') {
         const processor = new VuexBlazeDocSnapshotProcessor(
           null,
-          doc, 
-          this.path.createChild(this.startIndex + resultIndex), 
+          doc,
+          this.path.createChild(this.startIndex + resultIndex),
           this.options
         )
         processor.process()
         this.docSnapshotProcessors[doc.id] = processor
-        change.push({ 
-          type, 
-          doc: processor.doc, 
+        change.push({
+          type,
+          doc: processor.doc,
           path: this.path,
-          index: startIndex + newIndex })
-      } else if (type == 'removed') {
+          index: startIndex + newIndex
+        })
+      } else if (type === 'removed') {
         this.docSnapshotProcessors[doc.id].stop()
         delete this.docSnapshotProcessors[doc.id]
-        change.push({ 
-          type, 
+        change.push({
+          type,
           path: this.path,
-          index: startIndex + oldIndex 
+          index: startIndex + oldIndex
         })
-      } else if (type == 'modified') {
+      } else if (type === 'modified') {
         const processor = new VuexBlazeDocSnapshotProcessor(
           this.docSnapshotProcessors[doc.id],
           doc,
-          this.path.createChild(this.startIndex + resultIndex), 
+          this.path.createChild(this.startIndex + resultIndex),
           this.options
         )
         processor.process()
@@ -130,7 +134,7 @@ export default class VuexBlazeCollectionInnerObserver {
           type,
           doc: processor.doc,
           path: this.path,
-          oldIndex: startIndex + oldIndex, 
+          oldIndex: startIndex + oldIndex,
           newIndex: startIndex + newIndex
         })
       }
@@ -155,10 +159,12 @@ export default class VuexBlazeCollectionInnerObserver {
   }
 
   static inspectChanges(changes) {
-    return changes.reduce((result, change) => {
-      result[change.type] = true
-      return result
-    }, { added: false, removed: false, modified: false })
+    return changes.reduce(
+      (result, change) => {
+        result[change.type] = true
+        return result
+      },
+      { added: false, removed: false, modified: false }
+    )
   }
-
 }

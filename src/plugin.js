@@ -9,7 +9,7 @@ const plugin = store => {
   store.registerModule('vuexblaze', vuexModule)
 }
 
-plugin['config'] = function(config) {
+plugin.config = function(config) {
   VuexBlazeConfig.setAll(config)
   return this
 }

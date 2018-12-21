@@ -1,15 +1,17 @@
 import { isObject, isDocumentReference, isReference } from '../utils'
 import VuexBlazeDocObserver from './VuexBlazeDocObserver'
+import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
 
 export default class VuexBlazeDocSnapshotProcessor {
-
   constructor(previousProcessor, snapshot, path, options) {
     this.previousProcessor = previousProcessor
     this.snapshot = snapshot
     this.path = path
     this.options = options
 
-    this.refObservers = this.previousProcessor ? this.previousProcessor.refObservers : {}
+    this.refObservers = this.previousProcessor
+      ? this.previousProcessor.refObservers
+      : {}
     this.doc = this.previousProcessor ? this.previousProcessor.doc : null
   }
 
@@ -29,27 +31,36 @@ export default class VuexBlazeDocSnapshotProcessor {
             } else {
               data[key] = this.doc ? this.doc[key] || undefined : undefined
               this.refObservers[refKey] = isDocumentReference(value)
-                ? new VuexBlazeDocObserver(value, currentPath.createChild(key), this.options)
-                : new VuexBlazeCollectionObserver(value, currentPath.createChild(key), this.options)
+                ? new VuexBlazeDocObserver(
+                    value,
+                    currentPath.createChild(key),
+                    this.options
+                  )
+                : new VuexBlazeCollectionObserver(
+                    value,
+                    currentPath.createChild(key),
+                    this.options
+                  )
             }
           }
         } else if (isObject(value)) {
           processData(value, currentPath.createChild(key))
         } else if (Array.isArray(value)) {
-          value.forEach((v, i) => processData(v, currentPath.createChild([key, i])))
+          value.forEach((v, i) =>
+            processData(v, currentPath.createChild([key, i]))
+          )
         }
       })
       return data
     }
     const data = processData(this.snapshot.data(), this.path)
-  
+
     if (data) {
-      this.doc = Object.defineProperty(data, 'id', 
-      {
+      this.doc = Object.defineProperty(data, 'id', {
         enumerable: false,
         writable: false,
         configurable: false,
-        value: this.snapshot.id,
+        value: this.snapshot.id
       })
     }
 

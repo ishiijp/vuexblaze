@@ -12,8 +12,8 @@ export default class VuexBlazePath {
   }
 
   get() {
-    return this.parentPath 
-      ? flatten([this.parentPath.get(), this.selfPaths]) 
+    return this.parentPath
+      ? flatten([this.parentPath.get(), this.selfPaths])
       : this.selfPaths
   }
 
@@ -22,7 +22,7 @@ export default class VuexBlazePath {
   }
 
   update(paths) {
-    this.selfPaths = Array.isArray(paths) ? paths: [paths]
+    this.selfPaths = Array.isArray(paths) ? paths : [paths]
     return this
   }
 
@@ -31,6 +31,6 @@ export default class VuexBlazePath {
   }
 
   get isRefLimit() {
-    return ! (this.length < this.options.refDepth)
+    return !(this.length < this.options.refDepth)
   }
 }

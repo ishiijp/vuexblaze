@@ -1,5 +1,3 @@
-
-
 import VuexBlazeDoc from './classes/VuexBlazeDoc'
 import VuexBlazeCollection from './classes/VuexBlazeCollection'
 import vuexblazePlugin from './plugin'
@@ -14,10 +12,4 @@ function collection(collectionName) {
   return new VuexBlazeCollection(collectionName)
 }
 
-export {
-  doc,
-  collection,
-  vuexblazeTypes,
-  vuexblazeOptions,
-  vuexblazePlugin
-}
+export { doc, collection, vuexblazeTypes, vuexblazeOptions, vuexblazePlugin }

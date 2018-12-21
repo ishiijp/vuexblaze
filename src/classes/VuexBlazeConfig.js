@@ -5,7 +5,6 @@ const vuexblazeConfig = {
 }
 
 export default class VuexBlazeConfig {
-
   static setAll(config) {
     if (config) {
       Object.entries(config).forEach(([key, value]) => {
@@ -23,6 +22,6 @@ export default class VuexBlazeConfig {
   }
 
   static exists(name) {
-    return vuexblazeConfig[name] != undefined
+    return vuexblazeConfig[name] !== undefined
   }
 }

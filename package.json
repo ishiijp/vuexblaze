@@ -19,7 +19,8 @@
   ],
   "scripts": {
     "build": "babel src --out-dir dist/cjs",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": " npm run build",
+    "lint": "eslint --ext .js ."
   },
   "repository": {
     "type": "git",
@@ -44,7 +45,11 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0"
+    "babel-register": "^6.26.0",
+    "eslint": "^5.10.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-config-recommended": "^4.0.0",
+    "eslint-plugin-prettier": "^3.0.0"
   },
   "babel": {
     "presets": [

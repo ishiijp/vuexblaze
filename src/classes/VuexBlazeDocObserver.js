@@ -1,9 +1,8 @@
 import { once } from 'lodash'
-import VuexBlazeDocChange from './VuexBlazeDocChange';
-import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor';
+import VuexBlazeDocChange from './VuexBlazeDocChange'
+import VuexBlazeDocSnapshotProcessor from './VuexBlazeDocSnapshotProcessor'
 
 export default class VuexBlazeDocObserver {
-
   constructor(docRef, path, options) {
     this.docRef = docRef
     this.path = path
@@ -15,11 +14,13 @@ export default class VuexBlazeDocObserver {
   }
 
   get observing() {
-    return !!this.snapshotProcessor 
+    return !!this.snapshotProcessor
   }
 
   get childObservers() {
-    return this.snapshotProcessor ? Object.values(this.snapshotProcessor.refObservers) : []
+    return this.snapshotProcessor
+      ? Object.values(this.snapshotProcessor.refObservers)
+      : []
   }
 
   get currentDoc() {
@@ -32,11 +33,16 @@ export default class VuexBlazeDocObserver {
       const rejectOnce = once(reject)
       this.unsubscribe = this.docRef.onSnapshot(async snapshot => {
         try {
-          this.snapshotProcessor = new VuexBlazeDocSnapshotProcessor(this.snapshotProcessor, snapshot, this.path, this.options)
+          this.snapshotProcessor = new VuexBlazeDocSnapshotProcessor(
+            this.snapshotProcessor,
+            snapshot,
+            this.path,
+            this.options
+          )
           this.snapshotProcessor.process()
           await this.notifyChange(new VuexBlazeDocChange(this))
           resolveOnce()
-        } catch(e) {
+        } catch (e) {
           rejectOnce(e)
         }
       }, rejectOnce)

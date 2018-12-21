@@ -4,7 +4,6 @@ import VuexBlazeCollectionBinder from './VuexBlazeCollectionBinder'
 import VuexBlazeConfig from './VuexBlazeConfig'
 
 export default class VuexBlazeCollection {
-
   constructor(collectionName) {
     this.collectionName = collectionName
     this.filterName = null
@@ -29,14 +28,21 @@ export default class VuexBlazeCollection {
         if (binder) throw new Error('Already binded')
         const $firestore = this.$firestore || this.$fireStore
         const collectionRef = $firestore.collection(self.collectionName)
-        binder = new VuexBlazeCollectionBinder(context, stateName, collectionRef, self.filterName, self.queries, options)
+        binder = new VuexBlazeCollectionBinder(
+          context,
+          stateName,
+          collectionRef,
+          self.filterName,
+          self.queries,
+          options
+        )
         return await binder.bind()
       },
       async [actionName('increment', stateName)]() {
         if (!binder) throw new Error('Not binded')
         await binder.increment()
       },
-      async [actionName('unbind', stateName)] () {
+      async [actionName('unbind', stateName)]() {
         if (binder) {
           binder.unbind()
           binder = null
@@ -54,7 +60,15 @@ export default class VuexBlazeCollection {
     return this
   }
 }
-VuexBlazeCollection.prototype.FIRESTORE_METHODS = ['where', 'orderBy', 'startAt', 'startAfter', 'endAt', 'endBefore','limit']
+VuexBlazeCollection.prototype.FIRESTORE_METHODS = [
+  'where',
+  'orderBy',
+  'startAt',
+  'startAfter',
+  'endAt',
+  'endBefore',
+  'limit'
+]
 VuexBlazeCollection.prototype.DEFAULT_OPTIONS = {
   refDepth: 2,
   onUncontrollableChange: VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE

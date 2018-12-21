@@ -5,7 +5,6 @@ import VuexBlazePath from './VuexBlazePath'
 import Queue from 'promise-queue'
 
 export default class VuexBlazeCollectionBinder {
-
   constructor(context, stateName, collectionRef, filterName, queries, options) {
     this.context = context
     this.stateName = stateName
@@ -26,15 +25,25 @@ export default class VuexBlazeCollectionBinder {
     return new Promise((resolve, reject) => {
       this.queue.add(async () => {
         if (this.binded) return reject('Already binded')
-        clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
-        this.observer = new VuexBlazeCollectionObserver(
-          this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
+        clearCollectionPath(
+          this.context.commit,
+          this.context.state,
+          this.stateName
         )
-        this.observer.onChange(async change => 
-          await change.applyTo(this.context, this.stateName)  
+        this.observer = new VuexBlazeCollectionObserver(
+          this.collectionRef,
+          this._getQueries(),
+          VuexBlazePath.createRoot(this.options),
+          this.options
+        )
+        this.observer.onChange(
+          async change => await change.applyTo(this.context, this.stateName)
         )
         this.observer.onUncontrollableChange(() => {
-          if (this.options.onUncontrollableChange == VUEXBLAZE_STOP_ON_UNCONTROLLABLE_CHANGE) {
+          if (
+            this.options.onUncontrollableChange ===
+            VUEXBLAZE_STOP_ON_UNCONTROLLABLE_CHANGE
+          ) {
             this.observer.stop()
           }
           this.uncontrollableChangeCallbacks.forEach(callback => callback())
@@ -61,10 +70,17 @@ export default class VuexBlazeCollectionBinder {
       this.queue.add(async () => {
         if (!this.binded) return reject('Not binded')
         this.observer.stop()
-        clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
-        
+        clearCollectionPath(
+          this.context.commit,
+          this.context.state,
+          this.stateName
+        )
+
         const observer = new VuexBlazeCollectionObserver(
-          this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
+          this.collectionRef,
+          this._getQueries(),
+          VuexBlazePath.createRoot(this.options),
+          this.options
         )
         observer.changeCallbacks = this.observer.changeCallbacks
         observer.uncontrollableChangeCallbacks = this.observer.uncontrollableChangeCallbacks
@@ -84,7 +100,11 @@ export default class VuexBlazeCollectionBinder {
       }
       this.uncontrollableChangeCallbacks = []
       this.innerCollectionInfos = []
-      clearCollectionPath(this.context.commit, this.context.state, this.stateName)
+      clearCollectionPath(
+        this.context.commit,
+        this.context.state,
+        this.stateName
+      )
     })
   }
 
@@ -97,11 +117,9 @@ export default class VuexBlazeCollectionBinder {
       throw new Error('Duplicate query settings')
     }
     if (this.filterName) {
-      return this.context.getters[this.filterName].map(([methodName, args]) => { 
-        return Array.isArray(args) ? [methodName, args] : [methodName, [args]]
-      })
-    } else {
+      return this.context.getters[this.filterName].map(([methodName, args]) => Array.isArray(args) ? [methodName, args] : [methodName, [args]])
+    } 
       return this.queries.slice(0)
-    }
+    
   }
 }
