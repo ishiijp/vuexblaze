@@ -14,14 +14,18 @@ export default class VuexBlazeCollectionBinder {
     this.uncontrollableChangeCallbacks = []
     this.queries = queries
     this.options = options
-
+    this.observer = null
     this.queue = new Queue(1, 1)
+  }
+
+  get binded() {
+    return !!this.observer
   }
 
   bind() {
     return new Promise((resolve, reject) => {
       this.queue.add(async () => {
-
+        if (this.binded) return reject('Already binded')
         clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
         this.observer = new VuexBlazeCollectionObserver(
           this.collectionRef, this._getQueries(), VuexBlazePath.createRoot(this.options), this.options
@@ -44,7 +48,8 @@ export default class VuexBlazeCollectionBinder {
   increment() {
     return new Promise((resolve, reject) => {
       this.queue.add(async () => {
-        if (!this.observer) reject('Not binded')
+        if (!this.binded) return reject('Not binded')
+        console.log(this.binded)
         await this.observer.increment()
         resolve(this)
       })
@@ -54,6 +59,7 @@ export default class VuexBlazeCollectionBinder {
   reload() {
     return new Promise((resolve, reject) => {
       this.queue.add(async () => {
+        if (!this.binded) return reject('Not binded')
         this.observer.stop()
         clearCollectionPath(this.context.commit, this.context.state, this.stateName)  
         
@@ -72,7 +78,10 @@ export default class VuexBlazeCollectionBinder {
 
   unbind() {
     this.queue.add(async () => {
-      this.observer.stop()
+      if (this.observer) {
+        this.observer.stop()
+        this.observer = null
+      }
       this.uncontrollableChangeCallbacks = []
       this.innerCollectionInfos = []
       clearCollectionPath(this.context.commit, this.context.state, this.stateName)

@@ -26,19 +26,24 @@ export default class VuexBlazeCollection {
 
     return {
       async [actionName('bind', stateName)](context) {
+        if (binder) throw new Error('Already binded')
         const $firestore = this.$firestore || this.$fireStore
         const collectionRef = $firestore.collection(self.collectionName)
         binder = new VuexBlazeCollectionBinder(context, stateName, collectionRef, self.filterName, self.queries, options)
         return await binder.bind()
       },
       async [actionName('increment', stateName)]() {
+        if (!binder) throw new Error('Not binded')
         await binder.increment()
       },
       async [actionName('unbind', stateName)] () {
-        binder.unbind()
-        binder = null
+        if (binder) {
+          binder.unbind()
+          binder = null
+        }
       },
       async [actionName('reload', stateName)]() {
+        if (!binder) throw new Error('Not binded')
         await binder.reload()
       }
     }
