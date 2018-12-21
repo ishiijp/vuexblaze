@@ -16,6 +16,7 @@ export default class VuexBlazeDocSnapshotProcessor {
   process() {
     const refs = []
     const processData = (data, currentPath) => {
+      if (!data) return null
       Object.entries(data).forEach(([key, value]) => {
         if (isReference(value)) {
           if (currentPath.isRefLimit) {
@@ -42,13 +43,15 @@ export default class VuexBlazeDocSnapshotProcessor {
     }
     const data = processData(this.snapshot.data(), this.path)
   
-    this.doc = Object.defineProperty(data, 'id', 
-    {
-      enumerable: false,
-      writable: false,
-      configurable: false,
-      value: this.snapshot.id,
-    })
+    if (data) {
+      this.doc = Object.defineProperty(data, 'id', 
+      {
+        enumerable: false,
+        writable: false,
+        configurable: false,
+        value: this.snapshot.id,
+      })
+    }
 
     Object.keys(this.refObservers)
       .filter(key => !refs.includes(key))
