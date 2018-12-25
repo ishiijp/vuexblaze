@@ -1,12 +1,13 @@
 import mutations from './mutations'
 import VuexBlazeConfig from './classes/VuexBlazeConfig'
 
-const vuexModule = {
-  mutations
-}
-
 const plugin = store => {
-  store.registerModule('vuexblaze', vuexModule)
+  store.registerModule('vuexblaze', {
+    getters: {
+      'vuexblaze/$firestore': () => store.$firestore || store.$fireStore
+    },
+    mutations
+  })
 }
 
 plugin.config = function(config) {

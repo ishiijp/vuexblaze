@@ -31,7 +31,7 @@ export default class VuexBlazeCollection {
 
     return {
       async [actionName('bind', stateName)](context) {
-        const $firestore = this.$firestore || this.$fireStore
+        const $firestore = context.rootGetters['vuexblaze/$firestore']
         const collectionRef = $firestore.collection(self.collectionName)
         binder = new VuexBlazeCollectionBinder(
           context,

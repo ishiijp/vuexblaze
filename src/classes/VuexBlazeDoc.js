@@ -15,7 +15,7 @@ export default class VuexBlazeDoc {
 
     return {
       async [actionName('bind', stateName)](context, docId) {
-        const $firestore = this.$firestore || this.$fireStore
+        const $firestore = context.rootGetters['vuexblaze/$firestore']
         const docRef = $firestore.collection(self.collectionName).doc(docId)
         binder = new VuexBlazeDocBinder(context, stateName, docRef, options)
         return binder.bind()
