@@ -28,40 +28,39 @@ export default class VuexBlazeCollection {
   }
 
   bindTo(stateName, userOptions) {
-    const self = this
     const options = { ...this.DEFAULT_OPTIONS, ...userOptions }
     let binder = null
     const actionName = actionNamer(VuexBlazeConfig.get('actionNameCase'))
 
     return {
-      async [actionName('bind', stateName)](context) {
+      [actionName('bind', stateName)]: async context => {
         const $firestore = context.rootGetters['vuexblaze/$firestore']
-        const collectionRef = $firestore.collection(self.collectionName)
+        const collectionRef = $firestore.collection(this.collectionName)
         binder = new VuexBlazeCollectionBinder(
           context,
           stateName,
           collectionRef,
-          self.filterName,
-          self.queries,
+          this.filterName,
+          this.queries,
           options
         )
         return await binder.bind()
       },
-      async [actionName('increment', stateName)]() {
+      [actionName('increment', stateName)]: async () => {
         if (!binder) throw new Error('Not binded')
         await binder.increment()
       },
-      async [actionName('unbind', stateName)]() {
+      [actionName('unbind', stateName)]: async () => {
         if (binder) {
           binder.unbind()
           binder = null
         }
       },
-      async [actionName('reload', stateName)]() {
+      [actionName('reload', stateName)]: async () => {
         if (!binder) throw new Error('Not binded')
         await binder.reload()
       },
-      async [actionName('updateDocIn', stateName)](context, payload) {
+      [actionName('updateDocIn', stateName)]: async (context, payload) => {
         if (!binder) throw new Error('Not binded')
         const [id, data] = Array.isArray(payload)
           ? payload
@@ -70,7 +69,7 @@ export default class VuexBlazeCollection {
         if (!id) throw new Error('"id" is required to update doc')
         await binder.collectionRef.doc(id).set(data, { merge: true })
       },
-      async [actionName('addDocTo', stateName)](context, payload) {
+      [actionName('addDocTo', stateName)]: async (context, payload) => {
         if (Array.isArray(payload)) {
           const [id, data] = payload
           await binder.collectionRef.doc(id).set(data)
@@ -83,7 +82,7 @@ export default class VuexBlazeCollection {
           await binder.collectionRef.add(payload)
         }
       },
-      async [actionName('deleteDocFrom', stateName)](context, payload) {
+      [actionName('deleteDocFrom', stateName)]: async (context, payload) => {
         const id = isString(payload) ? payload : payload.id
         if (!id) throw new Error('"id" is required to update doc')
         await binder.collectionRef.doc(id).delete()

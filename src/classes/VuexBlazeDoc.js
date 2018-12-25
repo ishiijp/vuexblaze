@@ -8,26 +8,25 @@ export default class VuexBlazeDoc {
   }
 
   bindTo(stateName, userOptions) {
-    const self = this
     const options = { refDepth: 1, ...userOptions }
     let binder = null
     const actionName = actionNamer(VuexBlazeConfig.get('actionNameCase'))
 
     return {
-      async [actionName('bind', stateName)](context, docId) {
+      [actionName('bind', stateName)]: async (context, docId) => {
         const $firestore = context.rootGetters['vuexblaze/$firestore']
-        const docRef = $firestore.collection(self.collectionName).doc(docId)
+        const docRef = $firestore.collection(this.collectionName).doc(docId)
         binder = new VuexBlazeDocBinder(context, stateName, docRef, options)
         return binder.bind()
       },
-      async [actionName('unbind', stateName)]() {
+      [actionName('unbind', stateName)]: async () => {
         if (!binder) {
           throw new Error('Not binded')
         }
         binder.unbind()
         binder = null
       },
-      async [actionName('update', stateName)](context, data) {
+      [actionName('update', stateName)]: async (context, data) => {
         if (!binder) {
           throw new Error('Not binded')
         }
