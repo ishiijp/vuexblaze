@@ -2,9 +2,8 @@ import { last, remove } from 'lodash'
 import VuexBlazeCollectionInnerObserver from './VuexBlazeCollectionInnerObserver'
 
 export default class VuexBlazeCollectionObserver {
-  constructor(collectionRef, queries, path, options) {
-    this.collectionRef = collectionRef
-    this.queries = queries
+  constructor(query, path, options) {
+    this.query = query
     this.path = path
     this.options = options
     this.innerObservers = []
@@ -14,13 +13,9 @@ export default class VuexBlazeCollectionObserver {
   }
 
   async observe() {
-    let ref = this.collectionRef
-    this.queries.forEach(([query, args]) => {
-      ref = ref[query](...args)
-    })
     const inner = new VuexBlazeCollectionInnerObserver(
       this,
-      ref,
+      this.query.primary,
       this.path,
       this.options
     )
@@ -29,16 +24,9 @@ export default class VuexBlazeCollectionObserver {
   }
 
   async increment() {
-    let ref = this.collectionRef
-    this.queries.forEach(([query, args]) => {
-      if (['where', 'orderBy', 'limit'].includes(query)) {
-        ref = ref[query](...args)
-      }
-    })
-    ref = ref.startAfter(last(this.innerObservers).lastDoc)
     const inner = new VuexBlazeCollectionInnerObserver(
       this,
-      ref,
+      this.query.incremented.startAfter(last(this.innerObservers).lastDoc),
       this.path,
       this.options
     )

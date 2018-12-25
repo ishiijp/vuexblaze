@@ -4,19 +4,12 @@ import { VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE } from '../options'
 import VuexBlazeDoc from './VuexBlazeDoc'
 import VuexBlazeCollectionBinder from './VuexBlazeCollectionBinder'
 import VuexBlazeConfig from './VuexBlazeConfig'
+import VuexBlazeQueryBuilder from './VuexBlazeQueryBuilder'
 
 export default class VuexBlazeCollection {
   constructor(collectionName) {
     this.collectionName = collectionName
-    this.filterName = null
-    this.queries = []
-
-    this.FIRESTORE_METHODS.forEach(methodName => {
-      this[methodName] = (...args) => {
-        this.queries.push([methodName, args])
-        return this
-      }
-    })
+    this.queryBuilder = VuexBlazeQueryBuilder.createFromProxy(this)
   }
 
   doc() {
@@ -40,8 +33,7 @@ export default class VuexBlazeCollection {
           context,
           stateName,
           collectionRef,
-          this.filterName,
-          this.queries,
+          this.queryBuilder,
           options
         )
         return await binder.bind()
@@ -90,20 +82,12 @@ export default class VuexBlazeCollection {
     }
   }
 
-  filterBy(filterName) {
-    this.filterName = filterName
+  filter(builder) {
+    this.queryBuilder = new VuexBlazeQueryBuilder(builder)
     return this
   }
 }
-VuexBlazeCollection.prototype.FIRESTORE_METHODS = [
-  'where',
-  'orderBy',
-  'startAt',
-  'startAfter',
-  'endAt',
-  'endBefore',
-  'limit'
-]
+
 VuexBlazeCollection.prototype.DEFAULT_OPTIONS = {
   refDepth: 2,
   onUncontrollableChange: VUEXBLAZE_IGNORE_ON_UNCONTROLLABLE_CHANGE

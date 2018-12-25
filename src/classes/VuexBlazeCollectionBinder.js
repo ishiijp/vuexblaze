@@ -5,13 +5,12 @@ import VuexBlazePath from './VuexBlazePath'
 import Queue from 'promise-queue'
 
 export default class VuexBlazeCollectionBinder {
-  constructor(context, stateName, collectionRef, filterName, queries, options) {
+  constructor(context, stateName, collectionRef, queryBuilder, options) {
     this.context = context
     this.stateName = stateName
     this.collectionRef = collectionRef
-    this.filterName = filterName
+    this.queryBuilder = queryBuilder
     this.uncontrollableChangeCallbacks = []
-    this.queries = queries
     this.options = options
     this.observer = null
     this.queue = new Queue(1, 1)
@@ -26,8 +25,7 @@ export default class VuexBlazeCollectionBinder {
       this.queue.add(async () => {
         this._unbind()
         this.observer = new VuexBlazeCollectionObserver(
-          this.collectionRef,
-          this._getQueries(),
+          this.queryBuilder.build(this.collectionRef, this.context),
           VuexBlazePath.createRoot(this.options),
           this.options
         )
@@ -71,8 +69,7 @@ export default class VuexBlazeCollectionBinder {
         )
 
         const observer = new VuexBlazeCollectionObserver(
-          this.collectionRef,
-          this._getQueries(),
+          this.queryBuilder.build(this.collectionRef, this.context),
           VuexBlazePath.createRoot(this.options),
           this.options
         )
@@ -104,17 +101,5 @@ export default class VuexBlazeCollectionBinder {
     this.uncontrollableChangeCallbacks = []
     this.innerCollectionInfos = []
     clearCollectionPath(this.context.commit, this.context.state, this.stateName)
-  }
-
-  _getQueries() {
-    if (this.filterName && this.queries.length) {
-      throw new Error('Duplicate query settings')
-    }
-    if (this.filterName) {
-      return this.context.getters[this.filterName].map(([methodName, args]) =>
-        Array.isArray(args) ? [methodName, args] : [methodName, [args]]
-      )
-    }
-    return this.queries.slice(0)
   }
 }
