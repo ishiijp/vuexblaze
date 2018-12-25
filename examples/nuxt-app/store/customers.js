@@ -8,10 +8,7 @@ export const state = () => ({
 
 export const getters = {
   listFilter(state) {
-    return [
-      ['where', ['isVIP', '==', state.isVIP]],
-      ['limit', 3]
-    ]
+    return [['where', ['isVIP', '==', state.isVIP]], ['limit', 3]]
   }
 }
 
@@ -22,6 +19,12 @@ export const mutations = {
 }
 
 export const actions = {
-  ...collection('customers').orderBy('firstName').bindTo('allList'),
-  ...collection('customers').filterBy('listFilter').bindTo('filteredList')
+  ...collection('customers')
+    .orderBy('firstName', 'asc')
+    .bindTo('allList'),
+  ...collection('customers')
+    .filter(_ => {
+      _.where('isVIP', '==', _.state.isVIP).limit(3)
+    })
+    .bindTo('filteredList')
 }

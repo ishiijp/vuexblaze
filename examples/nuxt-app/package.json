@@ -1,6 +1,6 @@
 {
   "name": "nuxt-app",
-  "version": "1.0.0",
+  "version": "0.0.8",
   "description": "My epic Nuxt.js project",
   "author": "Yoshinori Ishii",
   "private": false,
@@ -17,7 +17,7 @@
     "nuxt": "^2.0.0",
     "nuxt-fire": "^1.2.1",
     "random-name": "^0.1.2",
-    "vuexblaze": "^0.0.7"
+    "vuexblaze": "^0.0.8"
   },
   "devDependencies": {
     "dotenv-cli": "^1.4.0",
