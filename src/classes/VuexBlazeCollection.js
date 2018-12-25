@@ -23,6 +23,10 @@ export default class VuexBlazeCollection {
     return new VuexBlazeDoc(this.collectionName)
   }
 
+  bind(userOptions) {
+    return this.bindTo(this.collectionName, userOptions)
+  }
+
   bindTo(stateName, userOptions) {
     const self = this
     const options = { ...this.DEFAULT_OPTIONS, ...userOptions }
