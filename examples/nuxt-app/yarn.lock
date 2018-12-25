@@ -6947,10 +6947,10 @@ vuex@^3.0.1:
   resolved "https://registry.yarnpkg.com/vuex/-/vuex-3.0.1.tgz#e761352ebe0af537d4bb755a9b9dc4be3df7efd2"
   integrity sha512-wLoqz0B7DSZtgbWL1ShIBBCjv22GV5U+vcBFox658g6V0s4wZV9P4YjCNyoHSyIBpj1f29JBoNQIqD82cR4O3w==
 
-vuexblaze@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/vuexblaze/-/vuexblaze-0.0.6.tgz#5f5d1785ce0727ee8cfc7b2c61810c00b7a676e9"
-  integrity sha512-hPv4KnBfitIGo/aZ+oNIadaWtDlvQG9Z8OpUIiD3870aFYmT5lHpGZyyTKfP+3YGbdpgJkWm+bEtX/l8PhvKtQ==
+vuexblaze@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/vuexblaze/-/vuexblaze-0.0.7.tgz#6023498c779405d725378418ed01ef3a8880bc8d"
+  integrity sha512-o7/7om2ZCwIvOHU3UHah1wPZRTKZ8DO8iTmzV6rkbo5fnsj36JV1BtR0Yzd1v3YzQNXB0/pm1rf3f8vklQL/hg==
   dependencies:
     lodash "^4.17.11"
     promise-queue "^2.2.5"
