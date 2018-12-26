@@ -26,5 +26,6 @@ export const actions = {
     .filter(_ => {
       _.where('isVIP', '==', _.state.isVIP).limit(3)
     })
-    .bindTo('filteredList')
+    .bindTo('filteredList'),
+  ...collection('customers').crud()
 }

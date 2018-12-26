@@ -4900,6 +4900,11 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
+pluralize@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
+  integrity sha512-ARhBOdzS3e41FbkW/XWrTEtukqqLoK5+Z/4UeDaLuSW+39JPeFgs4gCGqsrJHVZX0fUrx//4OF0K1CUGwlIFow==
+
 posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
@@ -6947,12 +6952,13 @@ vuex@^3.0.1:
   resolved "https://registry.yarnpkg.com/vuex/-/vuex-3.0.1.tgz#e761352ebe0af537d4bb755a9b9dc4be3df7efd2"
   integrity sha512-wLoqz0B7DSZtgbWL1ShIBBCjv22GV5U+vcBFox658g6V0s4wZV9P4YjCNyoHSyIBpj1f29JBoNQIqD82cR4O3w==
 
-vuexblaze@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/vuexblaze/-/vuexblaze-0.0.8.tgz#1efc3d0ebbebfd1b1617ed50eeb50fc6e45084fd"
-  integrity sha512-BoBnn0rcBgYLbFYXqrvjwZ1KPvdAbpncXQjAzVjFWu0FkN19eTPwmV9VodAHzP2YL7IPhmFgHH024e0FqHtJ9Q==
+vuexblaze@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/vuexblaze/-/vuexblaze-0.0.9.tgz#fad731b938a3b89e8325d16cb179d7ca8afc4ed0"
+  integrity sha512-7aJ+4DfqLyWmLisrHA/JGScT4brXSgrBB3IGbYZMUrfqxS5reFikkwkYlMXRFKtigeeJnytMjygUdo1MoiOArA==
   dependencies:
     lodash "^4.17.11"
+    pluralize "^7.0.0"
     promise-queue "^2.2.5"
 
 watchpack@^1.5.0:

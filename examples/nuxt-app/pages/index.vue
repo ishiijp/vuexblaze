@@ -79,13 +79,13 @@ export default {
       this.$store.dispatch('customers/reloadFilteredList')
     },
     toVIP(customer) {
-      this.$store.dispatch('customers/updateDocInAllList', [
+      this.$store.dispatch('customers/updateCustomer', [
         customer.id,
         { isVIP: true }
       ])
     },
     toNormal(customer) {
-      this.$store.dispatch('customers/updateDocInAllList', [
+      this.$store.dispatch('customers/updateCustomer', [
         customer.id,
         { isVIP: false }
       ])
