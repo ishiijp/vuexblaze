@@ -1,6 +1,5 @@
-import { isObject, isDocumentReference, isReference } from '../utils'
+import { isObject, isReference } from '../utils'
 import VuexBlazeDocObserver from './VuexBlazeDocObserver'
-import VuexBlazeCollectionObserver from './VuexBlazeCollectionObserver'
 
 export default class VuexBlazeDocSnapshotProcessor {
   constructor(previousProcessor, snapshot, path, options) {
@@ -30,17 +29,11 @@ export default class VuexBlazeDocSnapshotProcessor {
               data[key] = this.refObservers[refKey].currentDoc
             } else {
               data[key] = this.doc ? this.doc[key] || undefined : undefined
-              this.refObservers[refKey] = isDocumentReference(value)
-                ? new VuexBlazeDocObserver(
-                    value,
-                    currentPath.createChild(key),
-                    this.options
-                  )
-                : new VuexBlazeCollectionObserver(
-                    value,
-                    currentPath.createChild(key),
-                    this.options
-                  )
+              this.refObservers[refKey] = new VuexBlazeDocObserver(
+                value,
+                currentPath.createChild(key),
+                this.options
+              )
             }
           }
         } else if (isObject(value)) {
