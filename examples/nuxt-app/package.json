@@ -16,7 +16,6 @@
     "firebase": "^5.7.0",
     "nuxt": "^2.0.0",
     "nuxt-fire": "^1.2.1",
-    "random-name": "^0.1.2",
     "vuexblaze": "^0.0.9"
   },
   "devDependencies": {
