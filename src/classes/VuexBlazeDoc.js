@@ -25,12 +25,6 @@ export default class VuexBlazeDoc {
         }
         binder.unbind()
         binder = null
-      },
-      [actionName('update', stateName)]: async (context, data) => {
-        if (!binder) {
-          throw new Error('Not binded')
-        }
-        await binder.docRef.set(data, { merge: true })
       }
     }
   }
