@@ -1,10 +1,8 @@
 <template>
   <section class="container">
-    <h1 class="title">Customers</h1>
-    <button @click="add">ADD CUSTOMER</button>
-
     <div>
       <h2>All Customers (Alphabetical order)</h2>
+      <button @click="add">ADD CUSTOMER</button>
       <ul>
         <li v-for="(customer, index) in allCustomers" :key="index">
           {{customer.firstName}} {{customer.lastName}}
@@ -21,7 +19,7 @@
     </div>
 
     <div>
-      <h2>Filtered Customers</h2>
+      <h2>Filtered Customers (Limited 3 lines)</h2>
       <template v-if="isVIP">
         <span>Showing only VIP</span>
         <a href="#" @click.prevent="setIsVIP(false)">Show Normal Customers</a>
@@ -43,7 +41,7 @@
           </span>
         </li>
         <li>
-          <a href="#" @click="incrementFilteredList">Show more</a>
+          <a href="#" @click="incrementFilteredCustomers">Show more</a>
         </li>
       </ul>
     </div>
@@ -57,18 +55,18 @@ import faker from 'faker'
 export default {
   computed: {
     ...mapState('customers', {
-      allCustomers: 'allList',
-      filteredCustomers: 'filteredList',
+      allCustomers: 'customers',
+      filteredCustomers: 'filteredCustomers',
       isVIP: 'isVIP'
     })
   },
   async mounted() {
-    this.$store.dispatch('customers/bindAllList')
-    this.$store.dispatch('customers/bindFilteredList')
+    this.$store.dispatch('customers/bindCustomers')
+    this.$store.dispatch('customers/bindFilteredCustomers')
   },
   methods: {
     add() {
-      this.$store.dispatch('customers/addDocToAllList', {
+      this.$store.dispatch('customers/createCustomer', {
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         isVIP: false
@@ -76,7 +74,7 @@ export default {
     },
     setIsVIP(value) {
       this.$store.commit('customers/setIsVIP', value)
-      this.$store.dispatch('customers/reloadFilteredList')
+      this.$store.dispatch('customers/reloadFilteredCustomers')
     },
     toVIP(customer) {
       this.$store.dispatch('customers/updateCustomer', [
@@ -90,8 +88,8 @@ export default {
         { isVIP: false }
       ])
     },
-    incrementFilteredList() {
-      this.$store.dispatch('customers/incrementFilteredList')
+    incrementFilteredCustomers() {
+      this.$store.dispatch('customers/incrementFilteredCustomers')
     }
   }
 }

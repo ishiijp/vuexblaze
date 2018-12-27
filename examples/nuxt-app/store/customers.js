@@ -1,16 +1,10 @@
 import { collection, doc } from 'vuexblaze'
 
 export const state = () => ({
-  allList: [],
-  filteredList: [],
+  customers: [],
+  filteredCustomers: [],
   isVIP: false
 })
-
-export const getters = {
-  listFilter(state) {
-    return [['where', ['isVIP', '==', state.isVIP]], ['limit', 3]]
-  }
-}
 
 export const mutations = {
   setIsVIP: (state, value) => {
@@ -21,11 +15,29 @@ export const mutations = {
 export const actions = {
   ...collection('customers')
     .orderBy('firstName', 'asc')
-    .bindTo('allList'),
+    .bind(),
+  // Generate actions
+  // - 'bindCustomers',
+  // - 'unbindCustomers',
+  // - 'reloadCustomers',
+  // - 'incrementCustomers'
+
   ...collection('customers')
-    .filter(_ => {
-      _.where('isVIP', '==', _.state.isVIP).limit(3)
+    .filter(({ query, state }) => {
+      query.where('isVIP', '==', state.isVIP).limit(3)
     })
-    .bindTo('filteredList'),
+    .bindTo('filteredCustomers'),
+  // Filter collection with state, getters, rootState, rootGetters
+  // and generate
+  // - 'bindFilteredCustomers',
+  // - 'unbindFilteredCustomers',
+  // - 'reloadFilteredCustomers',
+  // - 'incrementFilteredCustomers'
+
   ...collection('customers').crud()
+  // Generate CRUD actions
+  // - createCustomer
+  // - retrieveCustomer
+  // - updateCustomer
+  // - deleteCustomer
 }
