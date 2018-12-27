@@ -49,11 +49,20 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .btns {
   padding: 30px 0 10px;
+  .btn {
+    margin: 0 5px;
+  }
 }
 .link {
   padding: 0 10px;
+}
+.customers {
+  margin: 40px auto;
+  tr > td {
+    padding: 3px 10px;
+  }
 }
 </style>
