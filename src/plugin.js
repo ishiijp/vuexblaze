@@ -4,7 +4,7 @@ import VuexBlazeConfig from './classes/VuexBlazeConfig'
 const plugin = store => {
   store.registerModule('vuexblaze', {
     getters: {
-      'vuexblaze/$firestore': () => store.$firestore || store.$fireStore
+      'vuexblaze/$firestore': () => VuexBlazeConfig.get('firestore') || store.$firestore || store.$fireStore
     },
     mutations
   })
