@@ -12,11 +12,10 @@ firebase.initializeApp({
 
 const firestore = firebase.firestore()
 firestore.settings({ timestampsInSnapshots: true })
-Vuex.Store.prototype.$firestore = firestore
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  plugins: [vuexblazePlugin],
+  plugins: [vuexblazePlugin.config({ firestore })],
   state: {
     customers: [],
     filterType: 'all',
