@@ -50,7 +50,7 @@ export default new Vuex.Store({
 
 #### For Nuxt users
 
-Set up Firestore usging [Nuxt-Fire](https://github.com/lupas/nuxt-fire), and add plugin.
+Set up Firestore using [Nuxt-Fire](https://github.com/lupas/nuxt-fire), and add plugin.
 
 ```js
 import { vuexblazePlugin, collection } from 'vuexblaze'
