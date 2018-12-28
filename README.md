@@ -21,11 +21,9 @@ npm install --save vuexblaze
 
 ## Quickstart
 
-### Setup firestore in your app
+### Setup Firestore and add _vuexblazePlugin_ to _Vuex.Store_
 
 #### For Vue users
-
-Add firestore to _Vuex.Store_ as instance property _\$firestore_
 
 ```js
 import Vue from 'vue'
@@ -42,29 +40,26 @@ firebase.initializeApp({
 
 const firestore = firebase.firestore()
 firestore.settings({ timestampsInSnapshots: true })
-
-Vuex.Store.prototype.$firestore = firestore
 Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [vuexblazePlugin.config({ firestore })],
+  // ...
+})
 ```
 
 #### For Nuxt users
 
-Use [Nuxt-Fire](https://github.com/lupas/nuxt-fire). That's it.
-
-### Set _vuexblazePlugin_ in your _Vuex.Store_
+Set up Firestore usging [Nuxt-Fire](https://github.com/lupas/nuxt-fire), and add plugin.
 
 ```js
 import { vuexblazePlugin, collection } from 'vuexblaze'
-
-export default new Vuex.Store({
-  plugins: [vuexblazePlugin],
-  ....
-})
+export const plugins = [vuexblazePlugin]
 ```
 
-See [this page](https://vuex.vuejs.org/guide/plugins.html) for more infomation about Vuex plugins.
+Note that you don't have to pass firestore instance to _vuexblazePlugin_ .
 
-### Generate actions
+### Generate actions and call them
 
 #### Collection binding
 
