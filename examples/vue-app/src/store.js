@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { vuexblazePlugin, collection } from 'vuexblaze'
 import firebase from 'firebase/app'
-import {} from 'firebase/firestore'
+import 'firebase/firestore'
 
 firebase.initializeApp({
   apiKey: process.env.VUE_APP_FIRE_API_KEY,
