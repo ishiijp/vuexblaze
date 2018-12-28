@@ -1,22 +1,45 @@
-# nuxt-app
+# VuexBlaze Nuxt Example
 
-> My epic Nuxt.js project
+## How to setup
 
-## Build Setup
+### Create a firebase project and a collection named 'customers' in your firestore
 
-``` bash
-# install dependencies
-$ yarn install
+https://firebase.google.com/docs/firestore/quickstart
 
-# serve with hot reload at localhost:3000
-$ yarn run dev
+### Clone the repo and move nuxt-app folder
 
-# build for production and launch server
-$ yarn run build
-$ yarn start
-
-# generate static project
-$ yarn run generate
+```bash
+$ git clone https://github.com/ishiijp/vuexblaze.git
+$ cd examples/nuxt-app
 ```
 
-For detailed explanation on how things work, checkout [Nuxt.js docs](https://nuxtjs.org).
+### Copy .env.template to .env and modify.
+
+```bash
+$ mv .env.template .env
+```
+
+```bash
+FIRE_ENV=env
+FIRE_API_KEY=[YOUR FIREBASE KEY]
+FIRE_DATABASE_URL=[YOUR FIREBASE DATABASE URL]
+FIRE_PROJECT_ID=[YOUR PROJECT ID]
+```
+
+### Install dependencies
+
+```bash
+$ yarn install
+   or
+$ npm install
+```
+
+### Run the server
+
+```bash
+$ yarn dev
+   or
+$ npm run dev
+```
+
+Access http://localhost:3000
