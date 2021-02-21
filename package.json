@@ -1,7 +1,7 @@
 {
   "name": "vuexblaze",
   "description": "Yet another Firestore bindings for Vuex",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Yoshinori Ishii <yoshinori.ishii@gmail.com>",
   "license": "MIT",
   "private": false,
