@@ -1,3 +1,24 @@
 <template>
-  <h1 class="title">carparking-customer-brokerage-application</h1>
+  <div class="application-container">
+    <form-step :settings="currentStep" />
+  </div>
 </template>
+
+<script>
+import { get, dispatch } from 'vuex-pathify'
+import FormStep from '~/components/FormStep.vue'
+
+export default {
+  components: { FormStep },
+  directives: {
+    form: {},
+  },
+  computed: {
+    currentStep: get('currentStep'),
+  },
+  created() {
+    dispatch('init')
+  },
+  mounted() {},
+}
+</script>

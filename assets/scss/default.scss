@@ -1,0 +1,21 @@
+html,
+body {
+  margin: 0;
+  box-sizing: border-box;
+  touch-action: manipulation;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  list-style: none;
+}
+
+body {
+  background: #fafbfc;
+  font-family: Roboto, RobotoDraft, Meiryo, Helvetica, Arial, sans-serif;
+  letter-spacing: 0.7px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
