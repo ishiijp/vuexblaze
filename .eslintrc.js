@@ -16,5 +16,8 @@ module.exports = {
   ],
   plugins: ['prettier'],
   // add your custom rules here
-  rules: {},
+  rules: {
+    'no-unused-vars': process.env.NODE_ENV === 'development' ? 'warn' : 'error',
+    'no-console': process.env.NODE_ENV === 'development' ? 'warn' : 'error',
+  },
 }
