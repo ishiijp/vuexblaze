@@ -1,24 +1,24 @@
 <template>
   <fieldset class="full-name">
-    <div class="title">お名前</div>
+    <legend class="title">お名前</legend>
     <div class="area">
       <div class="name -last">
         <div class="label">姓<span class="required">必須</span></div>
-        <input v-model="form.lastName" type="text" class="input" />
+        <input v-vuelidate="form.lastName" type="text" class="input" />
       </div>
       <div class="name -first">
         <div class="label">名<span class="required">必須</span></div>
-        <input v-model="form.firstName" type="text" class="input" />
+        <input v-vuelidate="form.firstName" type="text" class="input" />
       </div>
     </div>
     <div class="area">
       <div class="name -last-kana">
         <div class="label">姓(フリガナ)<span class="required">必須</span></div>
-        <input v-model="form.lastNameKana" type="text" class="input" />
+        <input v-vuelidate="form.lastNameKana" type="text" class="input" />
       </div>
       <div class="name -first-kana">
         <div class="label">名(フリガナ)<span class="required">必須</span></div>
-        <input v-model="form.firstNameKana" type="text" class="input" />
+        <input v-vuelidate="form.firstNameKana" type="text" class="input" />
       </div>
     </div>
   </fieldset>

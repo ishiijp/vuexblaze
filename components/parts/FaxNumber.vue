@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import { maxLength } from 'vuelidate/lib/validators'
+
 export default {
   inject: ['getForm'],
   data() {
@@ -16,6 +18,11 @@ export default {
         faxNumber: '',
       }),
     }
+  },
+  validations: {
+    form: {
+      zip: { maxLength: maxLength(8) },
+    },
   },
 }
 </script>

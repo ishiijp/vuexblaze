@@ -1,13 +1,13 @@
 <template>
   <fieldset class="landline-mobile-numbers">
-    <div class="title">電話番号</div>
+    <legend class="title">電話番号</legend>
     <p class="message">※ 携帯電話と固定電話のどちらかは入力必須です</p>
     <div class="number">
       <div class="label">
         携帯電話<span class="note">半角ハイフンなし</span
         ><span class="required">※</span>
       </div>
-      <input v-model="form.mobileNumber" type="tel" class="input" />
+      <input v-vuelidate="form.mobileNumber" type="tel" class="input" />
     </div>
 
     <div class="number">
@@ -15,12 +15,14 @@
         固定電話<span class="note">半角ハイフンなし</span
         ><span class="required">※</span>
       </div>
-      <input v-model="form.landlineNumber" type="tel" class="input" />
+      <input v-vuelidate="form.landlineNumber" type="tel" class="input" />
     </div>
   </fieldset>
 </template>
 
 <script>
+import { required, maxLength } from 'vuelidate/lib/validators'
+
 export default {
   inject: ['getForm'],
   data() {
@@ -30,6 +32,14 @@ export default {
         mobileNumber: '',
       }),
     }
+  },
+  validations: {
+    form: {
+      lastName: { required, maxLength: maxLength(100) },
+      firstName: { required, maxLength: maxLength(100) },
+      lastNameKana: { required, maxLength: maxLength(100) },
+      firstNameKana: { required, maxLength: maxLength(100) },
+    },
   },
 }
 </script>
