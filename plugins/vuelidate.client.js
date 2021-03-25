@@ -17,7 +17,6 @@ Vue.directive('vuelidate', {
       Vue.set(target(), name(), el.value)
     })
     el.addEventListener('blur', () => {
-      console.log('hoehgoe')
       const v = get(vnode.context.$v, binding.expression)
       v.$touch()
     })
@@ -25,13 +24,16 @@ Vue.directive('vuelidate', {
   },
   update(el, binding, vnode) {
     const v = get(vnode.context.$v, binding.expression)
-    stateClasses.forEach(([property, truthy, falsy]) => {
+
+    stateClasses.forEach(([property, truthy, falsy, checkFalsyWith]) => {
       if (v['$' + property]) {
         el.classList.remove(falsy)
         el.classList.add(truthy)
       } else {
         el.classList.remove(truthy)
-        if (falsy) el.classList.add(falsy)
+        if (falsy && checkFalsyWith && v['$' + checkFalsyWith]) {
+          el.classList.add(falsy)
+        }
       }
     })
   },
@@ -39,9 +41,9 @@ Vue.directive('vuelidate', {
 
 const stateClasses = [
   ['anyDirty', '-v-any-dirty', '-v-all-pristine'],
-  ['anyError', '-v-any-error', '-v-all-correct'],
-  ['error', '-v-error', '-v-correct'],
+  ['anyError', '-v-any-error', '-v-all-correct', 'anyDirty'],
   ['dirty', '-v-dirty', '-v-pristine'],
+  ['error', '-v-error', '-v-correct', 'dirty'],
   ['pending', '-v-pending', null],
   ['invalid', '-v-invalid', '-v-valid'],
 ]
