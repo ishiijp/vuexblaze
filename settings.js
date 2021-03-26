@@ -4,6 +4,7 @@ export default {
     {
       stepId: '0DAbNl7NhbiNrN7LAkYJ',
       title: 'ご契約者様の情報',
+      desc: '駐車場をお申込みされる契約名義人の情報を入力してください',
       parts: [
         {
           type: 'full-name',
@@ -11,8 +12,7 @@ export default {
         {
           type: 'location-info',
         },
-        { type: 'landline-mobile-numbers' },
-        { type: 'fax-number' },
+        { type: 'contact-info' },
       ],
       postProcess: {
         defaultDestination: 'AD0bNl7N349NrN7LAkYJ',

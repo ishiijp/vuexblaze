@@ -24,8 +24,8 @@
         <a class="link" @click="back">戻る</a>
       </div>
       <progress-bar />
-      <div class="message">
-        駐車場をお申込みされる契約名義人の情報を入力してください
+      <div v-if="settings.desc" class="message">
+        {{ settings.desc }}
       </div>
       <component
         :is="`parts-${part.type}`"
@@ -48,7 +48,7 @@
 <script>
 import { dispatch, get } from 'vuex-pathify'
 import { cloneDeep } from 'lodash'
-import ProgressBar from '@/components/Progress-bar'
+import ProgressBar from '@/components/ProgressBar'
 
 export default {
   components: {

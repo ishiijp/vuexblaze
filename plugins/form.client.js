@@ -4,8 +4,12 @@ import { get, initial, last } from 'lodash'
 
 Vue.use(Vuelidate)
 
-Vue.directive('vuelidate', {
+Vue.directive('form', {
   bind(el, binding, vnode) {
+    const v = get(vnode.context.$v, binding.expression)
+    if (!v) return
+    vnode.componentInstance.$v = v
+
     const target = () => {
       const paths = initial(binding.expression.split('.'))
       return paths.length ? get(vnode.context, paths.join('.')) : vnode.context
@@ -13,31 +17,39 @@ Vue.directive('vuelidate', {
     const name = () => {
       return last(binding.expression.split('.'))
     }
-    el.addEventListener('input', () => {
-      Vue.set(target(), name(), el.value)
+    el.addEventListener('input', (event) => {
+      Vue.set(target(), name(), event.target.value)
     })
-    el.addEventListener('blur', () => {
-      const v = get(vnode.context.$v, binding.expression)
+
+    el.addEventListener('focusout', () => {
       v.$touch()
+      updateClasses(el, v)
     })
     el.value = binding.value || ''
+
+    updateClasses(el, v)
   },
   update(el, binding, vnode) {
+    if (binding.value === binding.oldValue) return
     const v = get(vnode.context.$v, binding.expression)
-
-    stateClasses.forEach(([property, truthy, falsy, checkFalsyWith]) => {
-      if (v['$' + property]) {
-        el.classList.remove(falsy)
-        el.classList.add(truthy)
-      } else {
-        el.classList.remove(truthy)
-        if (falsy && checkFalsyWith && v['$' + checkFalsyWith]) {
-          el.classList.add(falsy)
-        }
-      }
-    })
+    updateClasses(el, v)
   },
 })
+
+const updateClasses = (el, v) => {
+  if (!v) return
+  stateClasses.forEach(([property, truthy, falsy, checkFalsyWith]) => {
+    if (v['$' + property]) {
+      el.classList.remove(falsy)
+      el.classList.add(truthy)
+    } else {
+      el.classList.remove(truthy)
+      if (falsy && checkFalsyWith && v['$' + checkFalsyWith]) {
+        el.classList.add(falsy)
+      }
+    }
+  })
+}
 
 const stateClasses = [
   ['anyDirty', '-v-any-dirty', '-v-all-pristine'],
