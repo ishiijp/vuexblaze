@@ -1,7 +1,5 @@
 <template>
-  <div class="application-container">
-    <form-step :settings="currentStep" />
-  </div>
+  <form-step :settings="currentStep" />
 </template>
 
 <script>
