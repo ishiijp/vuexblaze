@@ -1,11 +1,11 @@
 <template>
-  <div class="progress-bar">
+  <div class="f-progress-bar">
     <div class="bar"></div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.progress-bar {
+.f-progress-bar {
   width: 100%;
   height: 20px;
   background: #eee;

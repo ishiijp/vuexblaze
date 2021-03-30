@@ -1,12 +1,12 @@
 <template>
-  <form class="form-step">
+  <form class="f-step">
     <h2 class="heading">{{ settings.title }}</h2>
-    <div class="back">
+    <div v-if="hasPreviousStep" class="back">
       <a class="link" @click="back">戻る</a>
     </div>
-    <progress-bar />
-    <div v-if="settings.desc" class="message">
-      {{ settings.desc }}
+    <f-progress-bar />
+    <div v-if="settings.message" class="message">
+      {{ settings.message }}
     </div>
     <component
       :is="`parts-${part.type}`"
@@ -20,6 +20,7 @@
       v-if="settings.postProcess"
       type="button"
       class="btn"
+      :class="{ '-v-error': hasError }"
       value="次へ"
       @click="send"
     />
@@ -29,12 +30,8 @@
 <script>
 import { dispatch, get } from 'vuex-pathify'
 import { cloneDeep } from 'lodash'
-import ProgressBar from '@/components/ProgressBar'
 
 export default {
-  components: {
-    ProgressBar,
-  },
   provide() {
     return {
       getForm: (component, defultValue) => {
@@ -42,6 +39,10 @@ export default {
         return this.currentStepResult
           ? cloneDeep(this.currentStepResult.parts[partIndex])
           : cloneDeep(defultValue)
+      },
+      getSettings: (component) => {
+        const partIndex = component.$vnode.data.attrs['data-part-index']
+        return this.settings.parts[partIndex]
       },
     }
   },
@@ -51,12 +52,30 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      hasError: true,
+    }
+  },
   computed: {
     hasPreviousStep: get('hasPreviousStep'),
     currentStepResult: get('currentStepResult'),
+    isValid() {
+      return this.$refs.parts.reduce((bool, part) => {
+        return bool && !part.$v?.$invalid
+      }, true)
+    },
   },
   methods: {
     send() {
+      this.$refs.parts.forEach((part) => {
+        part.$v?.$touch()
+        part.$forceUpdate()
+      })
+      if (!this.isValid) {
+        this.hasError = true
+        return
+      }
       dispatch('saveStepResult', {
         stepId: this.settings.stepId,
         parts: this.$refs.parts.map((x) => x.form),
@@ -71,7 +90,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.form-step {
+.f-step {
   max-width: 1000px;
   margin: 40px auto;
   padding: 0 10px;

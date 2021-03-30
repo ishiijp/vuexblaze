@@ -9,6 +9,8 @@ Vue.directive('form', {
     const v = get(vnode.context.$v, binding.expression)
     if (!v) return
     vnode.componentInstance.$v = v
+    if (!vnode.context.$v.vnodes) vnode.context.$v.vnodes = []
+    vnode.context.$v.vnodes.push(vnode)
 
     const target = () => {
       const paths = initial(binding.expression.split('.'))
@@ -21,41 +23,66 @@ Vue.directive('form', {
       Vue.set(target(), name(), event.target.value)
     })
 
-    el.addEventListener('focusout', () => {
-      v.$touch()
-      updateClasses(el, v)
+    el.addEventListener('focusout', (event) => {
+      if (event.target.value) {
+        v.$touch()
+      }
+      updateClassesAll(vnode)
     })
-    el.value = binding.value || ''
 
-    updateClasses(el, v)
+    vnode.componentInstance.defaultValue = binding.value || ''
+    updateClassesAll(vnode)
   },
-  update(el, binding, vnode) {
-    if (binding.value === binding.oldValue) return
-    const v = get(vnode.context.$v, binding.expression)
-    updateClasses(el, v)
+  update(_el, _binding, vnode) {
+    if (vnode.componentInstance.$v.$error) {
+      vnode.componentInstance.error = errorMessage()
+    }
+    updateClassesAll(vnode)
   },
 })
 
-const updateClasses = (el, v) => {
-  if (!v) return
-  stateClasses.forEach(([property, truthy, falsy, checkFalsyWith]) => {
-    if (v['$' + property]) {
-      el.classList.remove(falsy)
-      el.classList.add(truthy)
-    } else {
-      el.classList.remove(truthy)
-      if (falsy && checkFalsyWith && v['$' + checkFalsyWith]) {
-        el.classList.add(falsy)
-      }
-    }
-  })
+const errorMessage = () => {
+  return 'エラーがあります'
 }
 
-const stateClasses = [
+const updateClassesAll = (vnode) => {
+  vnode.context.$v.vnodes.forEach(updateClasses)
+}
+
+const updateClasses = (vnode) => {
+  const v = vnode.componentInstance.$v
+  if (!v) return
+
+  const addClass = (clazz) => {
+    if (clazz) vnode.elm.classList.add(clazz)
+  }
+  const removeClass = (clazz) => {
+    if (clazz) vnode.elm.classList.remove(clazz)
+  }
+
+  simpleToggleStateClasses.forEach(([property, truthy, falsy]) => {
+    const bool = v['$' + property]
+    addClass(bool ? truthy : falsy)
+    removeClass(bool ? falsy : truthy)
+  })
+
+  if (v.$error) {
+    addClass('-v-error')
+    removeClass('-v-correct')
+  } else {
+    removeClass('-v-error')
+    if (v.$dirty && vnode.componentInstance.value) {
+      addClass('-v-correct')
+    } else {
+      removeClass('-v-correct')
+    }
+  }
+}
+
+const simpleToggleStateClasses = [
   ['anyDirty', '-v-any-dirty', '-v-all-pristine'],
-  ['anyError', '-v-any-error', '-v-all-correct', 'anyDirty'],
   ['dirty', '-v-dirty', '-v-pristine'],
-  ['error', '-v-error', '-v-correct', 'dirty'],
-  ['pending', '-v-pending', null],
   ['invalid', '-v-invalid', '-v-valid'],
+  ['pending', '-v-pending', ''],
+  ['anyError', '-v-any-error', ''], // TODO should be like -v-error
 ]

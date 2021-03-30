@@ -1,26 +1,30 @@
 <template>
   <f-fieldset>
     <template #legend>所在地</template>
-    <template #message>最後まで正しく入力してください</template>
-    <f-field
+    <template #message>{{ settings.messages._main }}</template>
+    <f-text
       v-form="form.zip"
       type="text"
       label="郵便番号"
+      :message="settings.messages.zip"
       placeholder="1650051"
+      @paste="removeHiphen"
     />
-    <f-field
-      v-form="form.addressKana"
+    <f-text
+      v-form="form.address"
       type="text"
       label="ご住所"
+      :message="settings.messages.address"
       placeholder="東京都渋谷区代々木2-1-1 新宿マインズタワー19F"
     />
-    <f-field
+    <f-text
       v-form="form.addressKana"
       type="text"
       label="ご住所(フリガナ)"
+      :message="settings.messages.addressKana"
       placeholder="トウキョウトシブヤクヨヨギ2-1-1 シンジュクマインズタワー19F"
     >
-    </f-field>
+    </f-text>
   </f-fieldset>
 </template>
 
@@ -28,7 +32,7 @@
 import { required, maxLength } from 'vuelidate/lib/validators'
 
 export default {
-  inject: ['getForm'],
+  inject: ['getForm', 'getSettings'],
   data() {
     return {
       form: this.getForm(this, {
@@ -36,13 +40,23 @@ export default {
         address: '',
         addressKana: '',
       }),
+      settings: this.getSettings(this),
     }
   },
   validations: {
     form: {
-      zip: { required, maxLength: maxLength(8) },
+      zip: { required, maxLength: maxLength(7) },
       address: { required, maxLength: maxLength(100) },
       addressKana: { required, maxLength: maxLength(100) },
+    },
+  },
+  methods: {
+    // TODO How to share this kind of method?
+    removeHiphen(event) {
+      event.preventDefault()
+      const clipboard = event.clipboardData
+      const text = clipboard.getData('Text')
+      event.target.value = text.trim().replace(/-/g, '')
     },
   },
 }

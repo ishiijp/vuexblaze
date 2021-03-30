@@ -4,14 +4,18 @@
       {{ label }}
     </div>
     <span v-if="hasRequired" class="required">必須</span>
+    <span v-if="message" class="message">{{ message }}</span>
     <div class="content">
       <input
-        :value="value"
-        type="text"
+        :value="defaultValue"
+        :type="type"
         class="input"
         :placeholder="placeholder"
+        :maxlength="maxlength"
+        @paste="$emit('paste', $event)"
+        @input="localValue = $event.target.value"
       />
-      <div class="note">半角ハイフンなし</div>
+      <div v-if="error" class="note">{{ error }}</div>
     </div>
   </div>
 </template>
@@ -23,8 +27,12 @@ export default {
       type: String,
       default: '',
     },
-    value: {
-      type: null,
+    type: {
+      type: String,
+      default: 'text',
+    },
+    message: {
+      type: String,
       default: '',
     },
     placeholder: {
@@ -34,11 +42,21 @@ export default {
   },
   data() {
     return {
+      defaultValue: '',
+      localValue: this.defaultValue,
+      error: '',
       hasRequired: true,
+      maxlength: null,
     }
   },
+  computed: {
+    value() {
+      return this.localValue
+    },
+  },
   mounted() {
-    this.hasRequired = Boolean(this.$v?.$params.required)
+    this.hasRequired = Boolean(this.$v?.$params.required?.type === 'required')
+    this.maxlength = this.$v?.$params.maxLength?.max || null
   },
 }
 </script>
@@ -61,6 +79,10 @@ export default {
     border: 1px solid red;
     font-size: 0.75rem;
     font-weight: normal;
+  }
+  > .message {
+    color: #888;
+    font-size: 0.75rem;
   }
   > .content {
     position: relative;
