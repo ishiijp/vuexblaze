@@ -2,28 +2,32 @@
   <f-fieldset class="full-name">
     <template #legend>お名前</template>
     <f-text
-      v-form="form.lastName"
+      v-model="form.lastName"
+      v-vuelidate
       class="_col-2"
       type="text"
       label="姓"
       placeholder="山田"
     />
     <f-text
-      v-form="form.firstName"
+      v-model="form.firstName"
+      v-vuelidate
       class="_col-2"
       type="text"
       label="名"
       placeholder="太郎"
     />
     <f-text
-      v-form="form.lastNameKana"
+      v-model="form.lastNameKana"
+      v-vuelidate
       class="_col-2"
       type="text"
       label="姓(フリガナ)"
       placeholder="ヤマダ"
     />
     <f-text
-      v-form="form.firstNameKana"
+      v-model="form.firstNameKana"
+      v-vuelidate
       class="_col-2"
       type="text"
       label="名(フリガナ)"

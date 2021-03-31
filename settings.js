@@ -58,17 +58,9 @@ export default {
           type: 'job-info',
           messages: {},
         },
-        {
-          partId: '2DAbNl7NhbiNrN7LAkYJ',
-          type: 'location-info',
-          messages: {
-            _main: '最後まで正しく入力してください',
-            zip: '半角数字ハイフンなし',
-          },
-        },
       ],
       postProcess: {
-        defaultDestination: 'AD0bNl7N349NrN7LAkYJ',
+        defaultDestination: 'BccbNl7N349NrN7LAkYJ',
         conditionalDestinations: [
           {
             conditionType: 'AND',

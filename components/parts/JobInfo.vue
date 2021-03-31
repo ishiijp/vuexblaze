@@ -3,21 +3,24 @@
     <template #legend>勤務先</template>
     <template #message>{{ settings.messages._main }}</template>
     <f-text
-      v-form="form.company"
+      v-model="form.company"
+      v-vuelidate
       type="text"
       label="勤務先名"
       :message="settings.messages.company"
       placeholder="株式会社アズーム"
     />
     <f-text
-      v-form="form.companyKana"
+      v-model="form.companyKana"
+      v-vuelidate
       type="text"
       label="勤務先名(フリガナ)"
       :message="settings.messages.companyKana"
       placeholder="カブシキガイシャアズーム"
     />
     <f-text
-      v-form="form.companyDepartment"
+      v-model="form.companyDepartment"
+      v-vuelidate
       type="text"
       label="勤務先部署"
       :message="settings.messages.companyDepartment"

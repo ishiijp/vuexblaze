@@ -1,5 +1,5 @@
 <template>
-  <ul class="general-select" :class="{ '-v-error': $v.$error }">
+  <ul v-vuelidate="{ model: 'form.selection' }" class="general-select">
     <div class="note">どちらか選択してください</div>
     <li
       v-for="selectOption in settings.options.selectOptions"

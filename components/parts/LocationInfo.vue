@@ -3,7 +3,8 @@
     <template #legend>所在地</template>
     <template #message>{{ settings.messages._main }}</template>
     <f-text
-      v-form="form.zip"
+      v-model="form.zip"
+      v-vuelidate
       type="text"
       label="郵便番号"
       :message="settings.messages.zip"
@@ -11,14 +12,16 @@
       @paste="removeHiphen"
     />
     <f-text
-      v-form="form.address"
+      v-model="form.address"
+      v-vuelidate
       type="text"
       label="ご住所"
       :message="settings.messages.address"
       placeholder="東京都渋谷区代々木2-1-1 新宿マインズタワー19F"
     />
     <f-text
-      v-form="form.addressKana"
+      v-model="form.addressKana"
+      v-vuelidate
       type="text"
       label="ご住所(フリガナ)"
       :message="settings.messages.addressKana"

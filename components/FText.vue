@@ -7,13 +7,13 @@
     <span v-if="message" class="message">{{ message }}</span>
     <div class="content">
       <input
-        :value="defaultValue"
+        :value="value"
         :type="type"
         class="input"
         :placeholder="placeholder"
         :maxlength="maxlength"
         @paste="$emit('paste', $event)"
-        @input="localValue = $event.target.value"
+        @input="$emit('input', $event.target.value)"
       />
       <div v-if="error" class="note">{{ error }}</div>
     </div>
@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { v, validationErrors } from '~/plugins/vuelidate.client'
+
 export default {
   props: {
     label: {
@@ -31,6 +33,10 @@ export default {
       type: String,
       default: 'text',
     },
+    value: {
+      type: String,
+      required: true,
+    },
     message: {
       type: String,
       default: '',
@@ -40,23 +46,18 @@ export default {
       default: '',
     },
   },
-  data() {
-    return {
-      defaultValue: '',
-      localValue: this.defaultValue,
-      error: '',
-      hasRequired: true,
-      maxlength: null,
-    }
-  },
   computed: {
-    value() {
-      return this.localValue
+    v,
+    validationErrors,
+    hasRequired() {
+      return this.v?.$params.required?.type === 'required'
     },
-  },
-  mounted() {
-    this.hasRequired = Boolean(this.$v?.$params.required?.type === 'required')
-    this.maxlength = this.$v?.$params.maxLength?.max || null
+    error() {
+      return this.validationErrors?.length > 0 ? this.validationErrors[0] : null
+    },
+    maxlength() {
+      return this.v?.$params.maxLength?.max
+    },
   },
 }
 </script>

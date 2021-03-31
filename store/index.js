@@ -24,7 +24,7 @@ export const getters = {
     if (!getters.currentStepSettings.postProcess) return null
 
     // TODO ugly but it works fine :p
-    const stepId = getters.currentStepSettings.postProcess.conditionalDestinations.reduce(
+    const stepId = getters.currentStepSettings.postProcess.conditionalDestinations?.reduce(
       (stepId, config) => {
         if (stepId) return stepId
         const bool = config.conditions.reduce(

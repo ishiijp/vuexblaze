@@ -4494,6 +4494,11 @@ espree@^7.3.0, espree@^7.3.1:
     acorn-jsx "^5.3.1"
     eslint-visitor-keys "^1.3.0"
 
+esprima@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/esprima/-/esprima-2.4.1.tgz#83059c751e9e9c41d228a41aaa1eef0ccce384ba"
+  integrity sha1-gwWcdR6enEHSKKQaqh7vDMzjhLo=
+
 esprima@^4.0.0, esprima@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/esprima/-/esprima-4.0.1.tgz#13b04cdb3e6c5d19df91ab6987a8695619b0aa71"
@@ -6960,6 +6965,13 @@ loose-envify@^1.0.0:
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
+
+loose-json@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/loose-json/-/loose-json-1.1.2.tgz#e86186d087c7ff81bc74067febfeaa747e1384e3"
+  integrity sha1-6GGG0IfH/4G8dAZ/6/6qdH4ThOM=
+  dependencies:
+    esprima "2.4.1"
 
 lower-case@^1.1.1:
   version "1.1.4"

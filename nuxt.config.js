@@ -1,3 +1,5 @@
+import { vuelidateDirective } from './plugins/vuelidate.client.js'
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -20,7 +22,7 @@ export default {
   css: ['~/assets/scss/app.scss'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ['~/plugins/pollyfills.client.js', '~/plugins/form.client.js'],
+  plugins: ['~/plugins/pollyfills.client.js', '~/plugins/vuelidate.client.js'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -37,5 +39,13 @@ export default {
   modules: [],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    extend(config, { loaders: { vue } }) {
+      vue.compilerOptions = {
+        directives: {
+          vuelidate: vuelidateDirective,
+        },
+      }
+    },
+  },
 }

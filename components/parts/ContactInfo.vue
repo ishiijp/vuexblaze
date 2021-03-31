@@ -3,7 +3,12 @@
     <template #legend>連絡先</template>
     <template #message>{{ settings.messages._main }}</template>
     <f-text
-      v-form="form.landlineNumber"
+      v-model="form.landlineNumber"
+      v-vuelidate="{
+        errors: {
+          required: '固定電話番号と携帯電話番号のどちらかは必須です',
+        },
+      }"
       class="_col-2"
       type="tel"
       label="固定電話番号"
@@ -12,7 +17,12 @@
       @paste="removeHiphen"
     />
     <f-text
-      v-form="form.mobileNumber"
+      v-model="form.mobileNumber"
+      v-vuelidate="{
+        errors: {
+          required: '固定電話番号と携帯電話番号のどちらかは必須です',
+        },
+      }"
       class="_col-2"
       type="tel"
       label="携帯電話番号"
@@ -21,7 +31,8 @@
       @paste="removeHiphen"
     />
     <f-text
-      v-form="form.faxNumber"
+      v-model="form.faxNumber"
+      v-vuelidate
       class="_col-2"
       type="tel"
       label="FAX番号"
