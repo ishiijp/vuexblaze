@@ -19,5 +19,6 @@ module.exports = {
   rules: {
     'no-unused-vars': process.env.NODE_ENV === 'development' ? 'warn' : 'error',
     'no-console': process.env.NODE_ENV === 'development' ? 'warn' : 'error',
+    'no-unreachable': process.env.NODE_ENV === 'development' ? 'warn' : 'error',
   },
 }

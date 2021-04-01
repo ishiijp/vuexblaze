@@ -8,22 +8,25 @@
     <div v-if="settings.message" class="message">
       {{ settings.message }}
     </div>
+
     <component
       :is="`parts-${part.type}`"
-      v-for="(part, i) in settings.parts"
-      :key="`${settings.stepId}-${i}`"
+      v-for="part in settings.parts"
+      :key="`${part.partId}`"
       ref="parts"
-      :data-part-index="i"
       class="content"
     />
-    <input
-      v-if="settings.postProcess"
-      type="button"
-      class="btn"
-      :class="{ '-v-error': hasError }"
-      value="次へ"
-      @click="send"
-    />
+
+    <div class="next" :class="{ '-error': hasError }">
+      <input
+        v-if="settings.postProcess"
+        type="button"
+        class="btn"
+        value="次へ"
+        @click="send"
+      />
+      <div class="balloon">エラーを修正してください</div>
+    </div>
   </form>
 </template>
 
@@ -34,37 +37,27 @@ import { cloneDeep } from 'lodash'
 export default {
   provide() {
     return {
-      getForm: (component, defultValue) => {
-        const partIndex = component.$vnode.data.attrs['data-part-index']
-        return this.currentStepResult
-          ? cloneDeep(this.currentStepResult.parts[partIndex])
-          : cloneDeep(defultValue)
+      getForm: (component, defaltValue) => {
+        const partId = component.$vnode.data.key
+        return this.result
+          ? cloneDeep(this.result.parts.find((x) => x.partId === partId)?.form)
+          : cloneDeep(defaltValue)
       },
       getSettings: (component) => {
-        const partIndex = component.$vnode.data.attrs['data-part-index']
-        return this.settings.parts[partIndex]
+        const partId = component.$vnode.data.key
+        return this.settings.parts.find((x) => x.partId === partId)
       },
     }
-  },
-  props: {
-    settings: {
-      type: Object,
-      required: true,
-    },
   },
   data() {
     return {
-      hasError: true,
+      hasError: null,
     }
   },
   computed: {
+    settings: get('currentStepSettings'),
     hasPreviousStep: get('hasPreviousStep'),
-    currentStepResult: get('currentStepResult'),
-    isValid() {
-      return this.$refs.parts.reduce((bool, part) => {
-        return bool && !part.$v?.$invalid
-      }, true)
-    },
+    result: get('currentStepResult'),
   },
   methods: {
     send() {
@@ -72,15 +65,32 @@ export default {
         part.$v?.$touch()
         part.$forceUpdate()
       })
-      if (!this.isValid) {
-        this.hasError = true
-        return
-      }
+
+      this.checkErrors()
+      if (this.hasError) return
+
       dispatch('saveStepResult', {
         stepId: this.settings.stepId,
-        parts: this.$refs.parts.map((x) => x.form),
+        parts: this.$refs.parts.map((part) => ({
+          partId: part.$vnode.data.key,
+          form: part.form,
+        })),
       })
       dispatch('goNextStep')
+    },
+    checkErrors() {
+      const checkHasError = () => {
+        return this.$refs.parts.reduce((bool, part) => {
+          return bool || part.$v?.$anyError
+        }, false)
+      }
+      if (this.hasError === null) {
+        this.$watch(
+          () => checkHasError(),
+          (val) => (this.hasError = val)
+        )
+        this.hasError = checkHasError()
+      }
     },
     back() {
       dispatch('goPreviousStep')
@@ -118,11 +128,15 @@ export default {
   > .content {
     margin: 16px 0;
   }
-  > .btn {
+  > .next {
+    position: relative;
+    width: 300px;
+    margin: 0 auto;
+  }
+  > .next > .btn {
     display: block;
     justify-content: center;
     width: 100%;
-    max-width: 300px;
     margin: 24px auto 0;
     padding: 16px;
     border: none;
@@ -133,15 +147,41 @@ export default {
     font-weight: bold;
     cursor: pointer;
     outline: none;
-    &.-v-error {
-      background: #dbdbdb
-        url(data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9ImNvbnRyYWN0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGl0bGU+aWNvbjwvdGl0bGU+CjxwYXRoIHN0eWxlPSJmaWxsOnJlZCIgZD0iTTk3LjEsNzMuNiw2Mi41LDEzLjdjLTYuOS0xMS45LTE4LjEtMTEuOS0yNSwwTDIuOSw3My42Qy0zLjksODUuNSwxLjcsOTUuMiwxNS40LDk1LjJIODQuNkM5OC4zLDk1LjIsMTAzLjksODUuNSw5Ny4xLDczLjZabS00MC41LDRhMy44LDMuOCwwLDAsMS0zLjgsMy44SDQ3LjJhMy44LDMuOCwwLDAsMS0zLjgtMy44VjcxLjhhMy44LDMuOCwwLDAsMSwzLjgtMy43aDUuNmEzLjgsMy44LDAsMCwxLDMuOCwzLjdabTAtMjBhMy44LDMuOCwwLDAsMS0zLjgsMy44SDQ3LjJhMy44LDMuOCwwLDAsMS0zLjgtMy44VjMyLjRhMy44LDMuOCwwLDAsMSwzLjgtMy44aDUuNmEzLjgsMy44LDAsMCwxLDMuOCwzLjhaIi8+PC9zdmc+Cg==);
-      background-repeat: no-repeat;
-      background-size: 24px;
-      background-position: right 16px center;
-      box-shadow: none;
-      pointer-events: none;
+  }
+  > .next > .balloon {
+    display: none;
+    position: absolute;
+    top: -26px;
+    right: 0;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: red;
+    color: #fff;
+    font-size: 0.75rem;
+    &::after {
+      position: absolute;
+      right: 16px;
+      bottom: -6px;
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 8px 8px 0 8px;
+      border-color: red transparent transparent transparent;
     }
+  }
+  > .next.-error > .btn {
+    background: #dbdbdb
+      url(data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9ImNvbnRyYWN0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGl0bGU+aWNvbjwvdGl0bGU+CjxwYXRoIHN0eWxlPSJmaWxsOnJlZCIgZD0iTTk3LjEsNzMuNiw2Mi41LDEzLjdjLTYuOS0xMS45LTE4LjEtMTEuOS0yNSwwTDIuOSw3My42Qy0zLjksODUuNSwxLjcsOTUuMiwxNS40LDk1LjJIODQuNkM5OC4zLDk1LjIsMTAzLjksODUuNSw5Ny4xLDczLjZabS00MC41LDRhMy44LDMuOCwwLDAsMS0zLjgsMy44SDQ3LjJhMy44LDMuOCwwLDAsMS0zLjgtMy44VjcxLjhhMy44LDMuOCwwLDAsMSwzLjgtMy43aDUuNmEzLjgsMy44LDAsMCwxLDMuOCwzLjdabTAtMjBhMy44LDMuOCwwLDAsMS0zLjgsMy44SDQ3LjJhMy44LDMuOCwwLDAsMS0zLjgtMy44VjMyLjRhMy44LDMuOCwwLDAsMSwzLjgtMy44aDUuNmEzLjgsMy44LDAsMCwxLDMuOCwzLjhaIi8+PC9zdmc+Cg==);
+    background-repeat: no-repeat;
+    background-size: 24px;
+    background-position: right 16px center;
+    box-shadow: none;
+    pointer-events: none;
+  }
+
+  > .next.-error > .balloon {
+    display: block;
   }
 }
 </style>

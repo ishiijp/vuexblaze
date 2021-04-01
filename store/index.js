@@ -11,23 +11,28 @@ export const state = () => ({
 
 export const getters = {
   ...make.getters(state),
-  currentStep(state) {
-    return settings.steps.find((x) => x.stepId === state.currentStepId)
+  settings() {
+    return settings
+  },
+  currentStepSettings(state, getters) {
+    return getters.settings.steps.find((x) => x.stepId === state.currentStepId)
   },
   currentStepResult(state) {
     return state.stepResults.find((x) => x.stepId === state.currentStepId)
   },
   nextStepId(state, getters) {
-    if (!getters.currentStep.postProcess) return null
+    if (!getters.currentStepSettings.postProcess) return null
 
     // TODO ugly but it works fine :p
-    const stepId = getters.currentStep.postProcess.conditionalDestinations.reduce(
+    const stepId = getters.currentStepSettings.postProcess.conditionalDestinations.reduce(
       (stepId, config) => {
         if (stepId) return stepId
         const bool = config.conditions.reduce(
-          (bool, { stepId, partIndex, field, operator, value }) => {
-            const result = state.stepResults.find((x) => x.stepId === stepId)
-            const b = result.parts[partIndex][field] === value // TODO deal with operator
+          (bool, { stepId, partId, field, operator, value }) => {
+            const partResult = state.stepResults
+              .find((step) => step.stepId === stepId)
+              ?.parts.find((part) => part.partId === partId)
+            const b = partResult?.form[field] === value // TODO deal with operator
             return config.conditionType === 'AND' ? bool && b : bool || b
           },
           true
@@ -36,7 +41,7 @@ export const getters = {
       },
       null
     )
-    return stepId || getters.currentStep.postProcess.defaultDestination
+    return stepId || getters.currentStepSettings.postProcess.defaultDestination
   },
   hasNextStep(state, getters) {
     return Boolean(getters.nextStepId)
@@ -47,7 +52,8 @@ export const getters = {
       state.stepResults,
       ({ stepId }) => stepId === state.currentStepId
     )
-    if (currentIndex <= 0) return last(state.stepResults).stepId
+    if (currentIndex === 0) return null
+    if (currentIndex < 0) return last(state.stepResults).stepId
     return state.stepResults[currentIndex - 1].stepId
   },
   hasPreviousStep(state, getters) {
