@@ -119,16 +119,29 @@ export default {
     margin: 16px 0;
   }
   > .btn {
+    display: block;
+    justify-content: center;
     width: 100%;
-    margin-top: 24px;
+    max-width: 300px;
+    margin: 24px auto 0;
     padding: 16px;
+    border: none;
     background: #00acbf;
-    border-radius: 3px;
+    border-radius: 28px;
     box-shadow: 0 2px 5px 0 rgb(0 0 0 / 26%);
     color: #fff;
     font-weight: bold;
     cursor: pointer;
     outline: none;
+    &.-v-error {
+      background: #dbdbdb
+        url(data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9ImNvbnRyYWN0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGl0bGU+aWNvbjwvdGl0bGU+CjxwYXRoIHN0eWxlPSJmaWxsOnJlZCIgZD0iTTk3LjEsNzMuNiw2Mi41LDEzLjdjLTYuOS0xMS45LTE4LjEtMTEuOS0yNSwwTDIuOSw3My42Qy0zLjksODUuNSwxLjcsOTUuMiwxNS40LDk1LjJIODQuNkM5OC4zLDk1LjIsMTAzLjksODUuNSw5Ny4xLDczLjZabS00MC41LDRhMy44LDMuOCwwLDAsMS0zLjgsMy44SDQ3LjJhMy44LDMuOCwwLDAsMS0zLjgtMy44VjcxLjhhMy44LDMuOCwwLDAsMSwzLjgtMy43aDUuNmEzLjgsMy44LDAsMCwxLDMuOCwzLjdabTAtMjBhMy44LDMuOCwwLDAsMS0zLjgsMy44SDQ3LjJhMy44LDMuOCwwLDAsMS0zLjgtMy44VjMyLjRhMy44LDMuOCwwLDAsMSwzLjgtMy44aDUuNmEzLjgsMy44LDAsMCwxLDMuOCwzLjhaIi8+PC9zdmc+Cg==);
+      background-repeat: no-repeat;
+      background-size: 24px;
+      background-position: right 16px center;
+      box-shadow: none;
+      pointer-events: none;
+    }
   }
 }
 </style>
