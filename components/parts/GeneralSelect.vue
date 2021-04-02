@@ -1,5 +1,5 @@
 <template>
-  <ul class="general-select -v-error">
+  <ul class="general-select" :class="{ '-v-error': $v.$error }">
     <div class="note">どちらか選択してください</div>
     <li
       v-for="selectOption in settings.options.selectOptions"

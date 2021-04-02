@@ -23,6 +23,9 @@ export default {
           },
         },
       ],
+      postProcess: {
+        defaultDestination: 'AD0bNl7N349NrN7LAkYJ',
+      },
     },
     {
       stepId: 'AD0bNl7N349NrN7LAkYJ',
