@@ -7,6 +7,11 @@ export default {
       message: '駐車場をお申込みされる契約名義人の情報を入力してください',
       parts: [
         {
+          partId: '1DAbeeeNhbiNrN7LAkYJ',
+          type: 'job-info',
+          messages: {},
+        },
+        {
           partId: '1DAbNl7NhbiNrN7LAkYJ',
           type: 'full-name',
           messages: {},

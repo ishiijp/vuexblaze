@@ -1,53 +1,52 @@
 <template>
-  <fieldset class="job-info">
-    <div class="title">勤務先</div>
-
-    <div class="company -name">
-      <div class="label">
-        ご契約者さまの勤務先<span class="required">必須</span>
-      </div>
-      <input v-vuelidate="form.companyName" type="text" class="input" />
-    </div>
-
-    <div class="company -address">
-      <div class="label">
-        ご契約者さまの勤務先フリガナ<span class="required">必須</span>
-      </div>
-      <input v-vuelidate="form.companyAddress" type="text" class="input" />
-    </div>
-
-    <div class="company -department">
-      <div class="label">
-        ご契約者さまの勤務先での部署<span class="required">必須</span>
-      </div>
-      <input
-        v-vuelidate="form.companyDepartmentName"
-        type="text"
-        class="input"
-      />
-    </div>
-  </fieldset>
+  <f-fieldset>
+    <template #legend>勤務先</template>
+    <template #message>{{ settings.messages._main }}</template>
+    <f-text
+      v-form="form.company"
+      type="text"
+      label="勤務先名"
+      :message="settings.messages.company"
+      placeholder="株式会社アズーム"
+    />
+    <f-text
+      v-form="form.companyKana"
+      type="text"
+      label="勤務先名(フリガナ)"
+      :message="settings.messages.companyKana"
+      placeholder="カブシキガイシャアズーム"
+    />
+    <f-text
+      v-form="form.companyDepartment"
+      type="text"
+      label="勤務先部署"
+      :message="settings.messages.companyDepartment"
+      placeholder="営業部"
+    >
+    </f-text>
+  </f-fieldset>
 </template>
 
 <script>
 import { required, maxLength } from 'vuelidate/lib/validators'
 
 export default {
-  inject: ['getForm'],
+  inject: ['getForm', 'getSettings'],
   data() {
     return {
       form: this.getForm(this, {
-        companyName: '',
-        companyAddress: '',
-        companyDepartmentName: '',
+        company: '',
+        companyKana: '',
+        companyDepartment: '',
       }),
+      settings: this.getSettings(this),
     }
   },
   validations: {
     form: {
-      companyName: { required, maxLength: maxLength(60) },
-      companyAddress: { required, maxLength: maxLength(100) },
-      companyDepartmentName: { required, maxLength: maxLength(80) },
+      company: { required, maxLength: maxLength(60) },
+      companyKana: { required, maxLength: maxLength(100) },
+      companyDepartment: { required, maxLength: maxLength(80) },
     },
   },
 }
