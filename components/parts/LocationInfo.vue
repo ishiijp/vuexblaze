@@ -33,6 +33,7 @@
 
 <script>
 import { required, maxLength } from 'vuelidate/lib/validators'
+import { kana } from '~/libs/validators'
 
 export default {
   inject: ['getForm', 'getSettings'],
@@ -50,7 +51,7 @@ export default {
     form: {
       zip: { required, maxLength: maxLength(7) },
       address: { required, maxLength: maxLength(100) },
-      addressKana: { required, maxLength: maxLength(100) },
+      addressKana: { required, kana, maxLength: maxLength(100) },
     },
   },
   methods: {

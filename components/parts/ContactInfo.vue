@@ -7,6 +7,7 @@
       v-vuelidate="{
         errors: {
           required: '固定電話番号と携帯電話番号のどちらかは必須です',
+          tel: '正しい電話番号を入力してください',
         },
       }"
       class="_col-2"
@@ -21,6 +22,7 @@
       v-vuelidate="{
         errors: {
           required: '固定電話番号と携帯電話番号のどちらかは必須です',
+          tel: '正しい電話番号を入力してください',
         },
       }"
       class="_col-2"
@@ -32,7 +34,11 @@
     />
     <f-text
       v-model="form.faxNumber"
-      v-vuelidate
+      v-vuelidate="{
+        errors: {
+          fax: '正しいFax番号を入力してください',
+        },
+      }"
       class="_col-2"
       type="tel"
       label="FAX番号"
@@ -45,7 +51,8 @@
 </template>
 
 <script>
-import { maxLength, requiredUnless, helpers } from 'vuelidate/lib/validators'
+import { maxLength, requiredUnless } from 'vuelidate/lib/validators'
+import { number } from '~/libs/validators'
 
 export default {
   inject: ['getForm', 'getSettings'],
@@ -63,16 +70,16 @@ export default {
     form: {
       landlineNumber: {
         maxLength: maxLength(11),
-        tel: helpers.regex('tel', /^[0-9]+$/),
+        tel: number,
         required: requiredUnless((model) => Boolean(model.mobileNumber)),
       },
       mobileNumber: {
         maxLength: maxLength(11),
-        tel: helpers.regex('tel', /^[0-9]+$/),
+        tel: number,
         required: requiredUnless((model) => Boolean(model.landlineNumber)),
       },
       faxNumber: {
-        tel: helpers.regex('tel', /^[0-9]+$/),
+        fax: number,
         maxLength: maxLength(11),
       },
     },
