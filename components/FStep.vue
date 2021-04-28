@@ -76,6 +76,7 @@ export default {
           form: part.form,
         })),
       })
+      this.hasError = null
       dispatch('goNextStep')
     },
     checkErrors() {
