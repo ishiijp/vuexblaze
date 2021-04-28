@@ -124,7 +124,7 @@ export const validationErrors = function () {
 
     /* eslint prettier/prettier: 0  */
     /* eslint no-new-func : 0 */
-    const interpolate = Function(`"use strict";return(function(${names.join(',')}){return \`${template}\`})`)()
+    const interpolate = Function(`"use strict";return(function(${names.join(',')}){return \`${template}\`})`)() // TODO Should I use tiny template engine library?
     const error = interpolate(names.map((x) => options[x]))
     messages.push(error)
     return messages
@@ -133,6 +133,7 @@ export const validationErrors = function () {
 
 /* eslint no-template-curly-in-string: 0 */
 const ERRORS = {
+  // built-in validators
   required: '入力が必須です',
   minLength: '最小の長さは${min}文字です',
   maxLength: '最大の長さは${max}文字です',
@@ -141,12 +142,16 @@ const ERRORS = {
   between: '${min}から${max}までの値を入力してください',
   alpha: '半角英字のみを入力してください',
   alphaNum: '半角英数字のみを入力してください',
-  numeric: '数値を入力してください',
-  integer: '整数を入力してください',
+  numeric: '正しい数値を入力してください',
+  integer: '正しい数値を入力してください',
   decimal: '正しい数値を入力してください',
   email: 'メールアドレスを入力してください',
   ipAddress: 'IPアドレスを入力してください',
   macAddress: 'MACアドレスを入力してください',
   sameAs: '${eq}と値が違います',
   url: 'URLを入力してください',
+  // custom validators
+  hiragana: 'ひらがなで入力してください',
+  kana: 'カタカナで入力してください',
+  number: '正しい数値を入力してください'
 }
