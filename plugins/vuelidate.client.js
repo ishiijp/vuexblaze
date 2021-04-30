@@ -102,15 +102,15 @@ export const vuelidateDirective = function (el, dir, warn) {
 }
 
 export const v = function () {
-  return this.$vnode.data.directives.find((dir) => {
+  return this.$vnode.data.directives?.find((dir) => {
     return dir.name === 'vuelidate'
   })?.value?.v
 }
 
 export const validationErrors = function () {
-  const { v, errors } = this.$vnode.data.directives.find((dir) => {
+  const { v, errors } = this.$vnode.data.directives?.find((dir) => {
     return dir.name === 'vuelidate'
-  })?.value
+  })?.value || {}
 
   if (!v) return []
   return Object.entries(v.$params).reduce((messages, [name, options]) => {
