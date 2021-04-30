@@ -1,6 +1,20 @@
 export default {
-  initialStepId: '0DAbNl7NhbiNrN7LAkYJ',
+  initialStepId: 'DDDDDl7NhbiNrN7LAkYJ',
   steps: [
+    {
+      stepId: 'DDDDDl7NhbiNrN7LAkYJ',
+      title: '車情報',
+      message: '車情報',
+      parts: [
+        {
+          partId: 'ERTYN333hbiNrN7LAkYJ',
+          type: 'car-info',
+        },
+      ],
+      postProcess: {
+        defaultDestination: '0DAbNl7NhbiNrN7LAkYJ',
+      },
+    },
     {
       stepId: '0DAbNl7NhbiNrN7LAkYJ',
       title: 'ご契約者様の情報',
