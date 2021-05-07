@@ -10,7 +10,9 @@
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint:style": "stylelint \"**/*.{vue,css,scss}\" --ignore-path .gitignore",
     "lint": "yarn lint:js && yarn lint:style",
-    "test": "jest"
+    "test": "jest",
+    "emulators:start": "yarn firebase emulators:start --import=.firebase  --export-on-exit",
+    "emulators:export": "yarn firebase emulators:start .firebase"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint",
@@ -23,7 +25,9 @@
   },
   "dependencies": {
     "@nuxtjs/dotenv": "^1.4.1",
+    "@nuxtjs/firebase": "^7.5.0",
     "core-js": "^3.8.3",
+    "firebase": "^8.5.0",
     "ky": "^0.27.0",
     "ky-universal": "^0.9.1",
     "lodash": "^4.17.21",

@@ -91,3 +91,5 @@ sw.*
 
 # Added manally from here
 .env
+.firebase
+.playground
